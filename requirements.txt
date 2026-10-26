@@ -1,0 +1,9 @@
+openai
+httpx
+requests
+pyyaml
+pydantic
+json_repair
+ebooklib
+pyquery
+tqdm

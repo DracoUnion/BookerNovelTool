@@ -1,0 +1,56 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "BookerNovelTool"
+version = "2026.10.26.0"
+description = "iBooker/DracoUnion 小说工具：生成小说、分析 EPUB 小说"
+readme = "README.md"
+license = {text = "SATA"}
+authors = [
+    {name = "wizardforcel", email = "wizard.z@qq.com"},
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Intended Audience :: End Users/Desktop",
+    "License :: Other/Proprietary License",
+    "Natural Language :: Chinese (Simplified)",
+    "Natural Language :: English",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+    "Topic :: Text Processing",
+    "Topic :: Utilities",
+]
+keywords = ["novel", "小说", "fiction", "写作", "拆书"]
+requires-python = ">=3.6"
+dependencies = [
+    "openai",
+    "httpx",
+    "requests",
+    "pyyaml",
+    "pydantic",
+    "json_repair",
+    "ebooklib",
+    "pyquery",
+    "tqdm",
+]
+
+[project.urls]
+Homepage = "https://github.com/DracoUnion/BookerNovelTool"
+
+[project.scripts]
+BookerNovelTool = "BookerNovelTool.__main__:main"
+novel-tool = "BookerNovelTool.__main__:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["BookerNovelTool*"]
+
+[tool.setuptools.package-data]
+"*" = ["*"]
