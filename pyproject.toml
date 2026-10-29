@@ -39,6 +39,8 @@ dependencies = [
     "ebooklib",
     "pyquery",
     "tqdm",
+    "numpy",
+    "jieba",
 ]
 
 [project.urls]

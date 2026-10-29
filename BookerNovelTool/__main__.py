@@ -5,6 +5,7 @@ from . import __version__
 from . import (
     gts_fiction, novel_anls, write_novel,
 )
+from .metrics import tool as metrics_tool
 
 def main():
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
@@ -43,6 +44,7 @@ def main():
     gts_fiction.reg_subparser(subparsers)
     novel_anls.reg_subparser(subparsers)
     write_novel.reg_subparser(subparsers)
+    metrics_tool.reg_subparser(subparsers)
 
     args = parser.parse_args()
     args.func(args)

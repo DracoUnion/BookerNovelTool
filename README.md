@@ -125,6 +125,37 @@ novel-tool novel-anls book.epub --book-title "书名" --author "作者"
 | `--author` | 作者名 | 无 |
 | `--blurb` | 书籍简介 | 无 |
 
+### 小说风格/质量评价（metrics）
+
+按 A/B/C/D 四档计算小说的风格与质量指标，输出 JSON 报告：
+
+- **A 档（纯规则）**：字/词/句/段/章长度与分布、标点、词汇丰富度（TTR 家族）、熵/压缩率、句型、把被字句、语音（声调/押韵/生僻字，需 pypinyin）。
+- **B 档（传统 NLP）**：词性/依存/NER（需 hanlp，可选）、情感/感官/风格词、主题网络（LDA/共现，需 gensim/networkx，可选）、可读性、风格相似度、衔接连贯。
+- **C 档（必须 LLM）**：修辞识别、描写类型、叙事学特征、风格判断、全书结构。
+- **D 档（规则 + LLM 级联）**：情感、主题、修辞、指代、视角、场景、对话/叙述比、描写类型、认知负荷、风格相似度；规则低置信度时才调用 LLM。
+
+输入支持单个文本文件、EPUB（复用 novel-anls 的解析）或章节文本目录：
+
+```bash
+novel-tool metrics book.txt -o metrics_report.json
+novel-tool metrics book.epub --tier ab --no-pos
+novel-tool metrics chapters/ --budget 500
+```
+
+可选参数：
+
+| 参数 | 说明 | 默认值 |
+| --- | --- | --- |
+| `-o, --output` | 报告输出路径 | `metrics_report.json` |
+| `-a, --asset-dir` | LLM 结果缓存目录 | `.metrics_cache` |
+| `--tier` | 计算档位（`ab`/`c`/`d`/`all`） | `all` |
+| `--budget` | LLM 调用预算上限 | `5000` |
+| `--max-chars` | 单次 LLM 调用截取的文本长度 | `4000` |
+| `--baseline` | 用于风格相似度对比的基准文本 | 无 |
+| `--no-pos` / `--no-lexicon` / `--no-topic` / `--no-cohesion` / `--no-phonetic` | 跳过对应档位/模块 | 全部启用 |
+
+说明：新增依赖 `numpy`、`jieba`；`hanlp`、`gensim`、`networkx`、`pypinyin`、`sentence-transformers` 为可选增强，缺失时相关指标自动降级并在报告中标记。
+
 ## 常见问题
 
 ### 请求失败或认证错误
@@ -143,6 +174,7 @@ novel-tool -k "$OPENAI_API_KEY" -H "https://example.com/v1" write-novel "简介"
 novel-tool write-novel -h
 novel-tool gts-fiction -h
 novel-tool novel-anls -h
+novel-tool metrics -h
 ```
 
 ## 开发
