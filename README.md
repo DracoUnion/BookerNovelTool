@@ -66,7 +66,7 @@ novel-tool --model gpt-4o-mini --retry 3 write-novel "一名少年穿越到修�
 | `-r, --retry` | 重试次数 | `1000000` |
 | `-tm, --temp` | temperature | `1` |
 | `-mt, --max-tokens` | 最大输出 token 数 | 不限制 |
-| `-st, --stream` | 启用流式输出 | 关闭 |
+| `-ST, --no-stream` | 关闭流式输出 | 关闭 |
 
 ## 子命令
 
@@ -86,7 +86,7 @@ novel-tool write-novel "都市修仙：一名程序员的逆袭" -o novel -c 20
 | `-c, --chapters` | 计划写作章数 | `20` |
 | `-ck, --check` | 一致性复查/返修轮数上限 | `3` |
 | `-pv, --preview-len` | 上一章结尾供承接的截取字数 | `2000` |
-| `-D, --debug` | 调试模式 | 关闭 |
+| `-D, --debug`（全局） | 调试模式 | 关闭 |
 
 ### 小说生成（gts-fiction）
 

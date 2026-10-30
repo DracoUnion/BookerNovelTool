@@ -253,5 +253,4 @@ def reg_subparser(subparsers):
     write_novel_parser.add_argument("-c", "--chapters", type=int, default=20, help="计划写作章数（默认 20）")
     write_novel_parser.add_argument("-ck", "--check", type=int, default=3, help="一致性复查/返修轮数上限（默认 3）")
     write_novel_parser.add_argument("-pv", "--preview-len", type=int, default=2000, help="上一章结尾供承接的截取字数（默认 2000）")
-    write_novel_parser.add_argument("-D", "--debug", action='store_true', help="调试模式")
     write_novel_parser.set_defaults(func=write_novel)
