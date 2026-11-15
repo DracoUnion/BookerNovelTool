@@ -1,0 +1,1392 @@
+{
+  "book_meta": {
+    "book_title": "测试书",
+    "author": null,
+    "blurb": null
+  },
+  "total_chapters": 5,
+  "chapter_summaries": [
+    {
+      "module": "章节摘要",
+      "chapter_index": 1,
+      "chapter_title": "1789，带着华工踏破美利坚 - 凌波门小书童 - 508CHS",
+      "chapter_summary": "无正文内容，无法生成章节摘要。",
+      "word_count": 0,
+      "emotional_tone": 0,
+      "chapter_end_hook": null,
+      "conflict_level": 0,
+      "plot_node_list": [],
+      "character_list": [],
+      "character_state_change": [],
+      "foreshadowing_set": [],
+      "foreshadowing_payoff": [],
+      "core_trope_usage_density": 0,
+      "chapter_end_hook_type": null,
+      "situation_change": null,
+      "relationship_change": null,
+      "cognition_change": null,
+      "emotion_direction": null,
+      "perceptible_change_flag": false,
+      "dialogue_ratio": 0.0,
+      "description_density": 0.0,
+      "timeline_node": null,
+      "sentence_pattern_features": null,
+      "source_page_range": null,
+      "chapter_title_style_type": null,
+      "paragraph_function_tags": [],
+      "key_dialogue_excerpt": [],
+      "dialogue_iceberg_check": null,
+      "sensory_preference": [],
+      "training_sample": null
+    },
+    {
+      "module": "章节摘要",
+      "chapter_index": 2,
+      "chapter_title": "第1章 从三和大神到穿越者（下）",
+      "chapter_summary": "秦汉白空间遇老板，选蓝药丸穿越1789年育空，获副本系统与黄金盒子，暴风雪中面临生死抉择。",
+      "word_count": 1650,
+      "emotional_tone": 4,
+      "chapter_end_hook": "秦汉在育空雪原面临暴风雪，犹豫物资选择时听到神秘铃铛声。",
+      "conflict_level": 6,
+      "plot_node_list": [
+        {
+          "event_description": "秦汉在黑暗中醒来，进入纯白空间，遇到面馆老板。",
+          "original_quote": "很黑，超乎想象的黑。紧接着就是亮，超乎想象的亮。",
+          "emotion_score": -1
+        },
+        {
+          "event_description": "老板提供蓝红两粒药丸，秦汉选择蓝色药丸并吞下。",
+          "original_quote": "蓝色让你重新开始，红色让你一如既往。",
+          "emotion_score": -2
+        },
+        {
+          "event_description": "系统搭建完成，秦汉选择1789年育空作为穿越地点，并了解副本系统规则。",
+          "original_quote": "【穿越时间轴写入1789年】【穿越地点轴请选择，范围仅限美洲】",
+          "emotion_score": 1
+        },
+        {
+          "event_description": "秦汉穿越至育空雪原，遭遇袭来的暴风雪，获得猎人套装和黄金盒子。",
+          "original_quote": "一场暴风雪正在慢慢地酝酿着。",
+          "emotion_score": -5
+        },
+        {
+          "event_description": "秦汉面对有限物资额度犹豫不决，忽然听到若有若无的铃铛声。",
+          "original_quote": "突然听到了一阵若有若无的铃铛声……",
+          "emotion_score": -3
+        }
+      ],
+      "character_list": [
+        {
+          "name": "秦汉",
+          "role": "主角",
+          "traits": [
+            "985高材生",
+            "三和大神",
+            "博览群书",
+            "有骨气",
+            "理性"
+          ],
+          "is_new": false
+        },
+        {
+          "name": "面馆老板",
+          "role": "神秘观察者",
+          "traits": [
+            "油腻",
+            "神秘",
+            "意味深长",
+            "冷漠"
+          ],
+          "is_new": false
+        }
+      ],
+      "character_state_change": [
+        {
+          "name": "秦汉",
+          "situation": "从现代三和大神、失魂落魄状态，穿越至1789年育空雪原",
+          "relationship": "与面馆老板从陌生客群关系转变为被观察的“小白鼠”与观察者关系",
+          "cognition": "从认为自己无选择余地，认识到自身被选中参与观察并获得副本系统与黄金盒子"
+        }
+      ],
+      "foreshadowing_set": [
+        {
+          "content": "面馆老板称“我们仅仅只是想观察”，暗示秦汉被作为实验对象",
+          "planted_chapter": 2,
+          "hint": "后续可能揭示观察者组织及其目的"
+        },
+        {
+          "content": "黄金盒子仅有一个二阶魔方大小，为初始兑换额度",
+          "planted_chapter": 2,
+          "hint": "物资匮乏将迫使秦汉在极端环境下做生死抉择"
+        },
+        {
+          "content": "育空雪原正在酝酿暴风雪",
+          "planted_chapter": 2,
+          "hint": "生存危机即将爆发"
+        },
+        {
+          "content": "听到若有若无的铃铛声",
+          "planted_chapter": 2,
+          "hint": "未知势力或危险即将出现"
+        }
+      ],
+      "foreshadowing_payoff": [],
+      "core_trope_usage_density": 7,
+      "chapter_end_hook_type": null,
+      "situation_change": null,
+      "relationship_change": null,
+      "cognition_change": null,
+      "emotion_direction": null,
+      "perceptible_change_flag": true,
+      "dialogue_ratio": 0.2,
+      "description_density": 0.7,
+      "timeline_node": null,
+      "sentence_pattern_features": null,
+      "source_page_range": null,
+      "chapter_title_style_type": null,
+      "paragraph_function_tags": [],
+      "key_dialogue_excerpt": [
+        "蓝色让你重新开始，红色让你一如既往。",
+        "观察，我们仅仅只是想观察。",
+        "【穿越时间轴写入1789年】"
+      ],
+      "dialogue_iceberg_check": null,
+      "sensory_preference": [
+        "视觉",
+        "听觉",
+        "触觉"
+      ],
+      "training_sample": null
+    },
+    {
+      "module": "章节摘要",
+      "chapter_index": 3,
+      "chapter_title": "第15章 掷弹筒的威力（求收藏推荐）",
+      "chapter_summary": "费尔南德斯率道森军进攻黄种人阵地，遭八九式掷弹筒和乡勇齐射重创，残部溃逃，战场突现新敌军。",
+      "word_count": 1450,
+      "emotional_tone": 7,
+      "chapter_end_hook": "背面的山坡上又出现了一支队伍",
+      "conflict_level": 9,
+      "plot_node_list": [
+        {
+          "event_description": "费尔南德斯接命进攻，私心里想取胜后反客为主，先杀亚伯拉罕",
+          "original_quote": "他第一个要杀掉的就是亚伯拉罕",
+          "emotion_score": -6
+        },
+        {
+          "event_description": "黄种人先发两发掷弹筒炮弹震慑道森军，列兵线安静下来",
+          "original_quote": "八九式掷弹筒的杀伤半径足足有五米，两发炮弹之下，仍然带走了七八个白人的狗命",
+          "emotion_score": -7
+        },
+        {
+          "event_description": "费尔南德斯趁间隙下令冲锋，道森军盲目冲向敌阵",
+          "original_quote": "冲过去，干掉这些黄种人，那道森堡所有的黄金都是我们的！",
+          "emotion_score": -6
+        },
+        {
+          "event_description": "四门掷弹筒齐射，道森军重创，费尔南德斯跳入弹坑躲过后逃窜",
+          "original_quote": "大部分人都被被炸成了碎片",
+          "emotion_score": -8
+        },
+        {
+          "event_description": "乡勇两轮齐射消灭残部，背面山坡突然出现新队伍",
+          "original_quote": "背面的山坡上又出现了一支队伍",
+          "emotion_score": -4
+        }
+      ],
+      "character_list": [
+        {
+          "name": "费尔南德斯",
+          "role": "道森军指挥官",
+          "traits": [
+            "自私",
+            "阴险",
+            "怨恨亚伯拉罕"
+          ],
+          "is_new": false
+        },
+        {
+          "name": "秦汉",
+          "role": "黄种人指挥官",
+          "traits": [
+            "冷静",
+            "狡猾"
+          ],
+          "is_new": false
+        },
+        {
+          "name": "李正",
+          "role": "乡勇指挥者",
+          "traits": [
+            "执行计划"
+          ],
+          "is_new": false
+        }
+      ],
+      "character_state_change": [
+        {
+          "name": "费尔南德斯",
+          "situation": "从进攻方指挥官沦为溃逃逃窜者",
+          "relationship": null,
+          "cognition": "认识到黄种人并非弱旅，掷弹筒威力惊人"
+        }
+      ],
+      "foreshadowing_set": [
+        {
+          "content": "背面山坡突然出现的一支未知队伍",
+          "planted_chapter": 3,
+          "hint": "后续可能发动新的进攻或制造新危机"
+        },
+        {
+          "content": "费尔南德斯逃回道森城",
+          "planted_chapter": 3,
+          "hint": "可能将情报带回，引发后续报复或冲突"
+        }
+      ],
+      "foreshadowing_payoff": [],
+      "core_trope_usage_density": 6,
+      "chapter_end_hook_type": null,
+      "situation_change": null,
+      "relationship_change": null,
+      "cognition_change": null,
+      "emotion_direction": null,
+      "perceptible_change_flag": true,
+      "dialogue_ratio": 0.15,
+      "description_density": 0.6,
+      "timeline_node": "正午",
+      "sentence_pattern_features": null,
+      "source_page_range": null,
+      "chapter_title_style_type": null,
+      "paragraph_function_tags": [],
+      "key_dialogue_excerpt": [
+        "冲过去，干掉这些黄种人，那道森堡所有的黄金都是我们的！",
+        "装填炮弹！",
+        "发射！"
+      ],
+      "dialogue_iceberg_check": null,
+      "sensory_preference": [
+        "视觉",
+        "听觉",
+        "嗅觉"
+      ],
+      "training_sample": null
+    },
+    {
+      "module": "章节摘要",
+      "chapter_index": 4,
+      "chapter_title": "第16章 一炮一炮地打",
+      "chapter_summary": "秦汉率三利团练炮击道森城，城内亚伯拉罕枪杀桑乔并栽赃费尔南德斯，谋求投降推卸责任。",
+      "word_count": 1730,
+      "emotional_tone": 6,
+      "chapter_end_hook": "桑乔惨遭亚伯拉罕枪杀，两人密谋嫁祸给已死的费尔南德斯，三利团练城下炮击仍在继续，谈判与冲突悬念并存。",
+      "conflict_level": 7,
+      "plot_node_list": [
+        {
+          "event_description": "桑乔率队赶到道森军被屠杀现场，只闻到硝烟并看到满地残肢断臂，众人心惊胆寒。",
+          "original_quote": "虽未亲眼目睹，但是也已经一个个都心惊胆寒了。",
+          "emotion_score": 3
+        },
+        {
+          "event_description": "桑乔命令四门掷弹筒右侧山头三轮齐射，打倒二三十敌人，敌军溃退上山。",
+          "original_quote": "改换目标，右侧山头，三轮齐射！",
+          "emotion_score": 2
+        },
+        {
+          "event_description": "秦汉犹豫进攻还是撤退，最终决定长痛不如短痛，收拢部队进军道森城。",
+          "original_quote": "长痛不如短痛，杀鸡就要用牛刀，要一次性把他们打疼。",
+          "emotion_score": 5
+        },
+        {
+          "event_description": "三利团练在城外布置四门掷弹筒，对道森城无差别慢速炮击，城内陷入混乱抢劫。",
+          "original_quote": "一分钟齐射一次，杀鸡用牛刀，而且还得用钝刀，毕竟慢刀子割肉才最疼。",
+          "emotion_score": 4
+        },
+        {
+          "event_description": "亚伯拉罕与霍奇森在城内与溃退的桑乔汇合，商议对策后枪杀桑乔，嫁祸给已死的费尔南德斯。",
+          "original_quote": "要说替罪羊，你可比费尔南德斯更合适。",
+          "emotion_score": -8
+        }
+      ],
+      "character_list": [
+        {
+          "name": "桑乔",
+          "role": "道森军残部将领",
+          "traits": [
+            "贪婪",
+            "懦弱",
+            "野心家"
+          ],
+          "is_new": false
+        },
+        {
+          "name": "秦汉",
+          "role": "三利团练统帅",
+          "traits": [
+            "果断",
+            "冷酷",
+            "重视情报"
+          ],
+          "is_new": false
+        },
+        {
+          "name": "亚伯拉罕",
+          "role": "道森城居民/领袖人物",
+          "traits": [
+            "阴鸷",
+            "投机",
+            "绝望"
+          ],
+          "is_new": false
+        },
+        {
+          "name": "霍奇森",
+          "role": "道森城居民/领袖人物",
+          "traits": [
+            "老谋深算",
+            "狡猾"
+          ],
+          "is_new": false
+        },
+        {
+          "name": "费尔南德斯",
+          "role": "已故道森军指挥官（替罪羊）",
+          "traits": [
+            "炮灰"
+          ],
+          "is_new": false
+        }
+      ],
+      "character_state_change": [
+        {
+          "name": "桑乔",
+          "situation": "从溃败逃回道森城，在城内遭同伙枪杀身亡",
+          "relationship": "与亚伯拉罕、霍奇森由合作伙伴变为弑杀关系",
+          "cognition": null
+        },
+        {
+          "name": "秦汉",
+          "situation": "率三利团练抵达道森城下并开始炮击",
+          "relationship": null,
+          "cognition": "认识到道森城隐藏实力，缺乏情报导致容错率低"
+        },
+        {
+          "name": "亚伯拉罕",
+          "situation": "面对城下炮击，从等待胜利转为筹备投降与嫁祸",
+          "relationship": "枪杀桑乔，决定以其为替罪羊",
+          "cognition": "认为黄种人是狠角色，必须推卸派兵的责任"
+        },
+        {
+          "name": "霍奇森",
+          "situation": "同亚伯拉罕共同面对攻城危机",
+          "relationship": null,
+          "cognition": "判断对方释放谈判信号，主张认输并给予黄金"
+        }
+      ],
+      "foreshadowing_set": [
+        {
+          "content": "秦汉意识到缺乏准确情报，打算下次准备窃听器、无人机等侦查手段",
+          "planted_chapter": 4,
+          "hint": "后续可能引入现代侦查装置或情报网络"
+        },
+        {
+          "content": "亚伯拉罕称费尔南德斯只不过是他们的炮灰",
+          "planted_chapter": 4,
+          "hint": "暗示道森城背后或存在更高层势力"
+        },
+        {
+          "content": "桑乔临死前被揭露比费尔南德斯更像幕后黑手",
+          "planted_chapter": 4,
+          "hint": "桑乔之死或引发三利团练对道森城内部的进一步追查"
+        }
+      ],
+      "foreshadowing_payoff": [],
+      "core_trope_usage_density": 6,
+      "chapter_end_hook_type": null,
+      "situation_change": null,
+      "relationship_change": null,
+      "cognition_change": null,
+      "emotion_direction": null,
+      "perceptible_change_flag": true,
+      "dialogue_ratio": 0.18,
+      "description_density": 0.62,
+      "timeline_node": null,
+      "sentence_pattern_features": null,
+      "source_page_range": null,
+      "chapter_title_style_type": null,
+      "paragraph_function_tags": [],
+      "key_dialogue_excerpt": [
+        "改换目标，右侧山头，三轮齐射！",
+        "长痛不如短痛，杀鸡就要用牛刀，要一次性把他们打疼。",
+        "要说替罪羊，你可比费尔南德斯更合适。"
+      ],
+      "dialogue_iceberg_check": null,
+      "sensory_preference": [
+        "听觉",
+        "嗅觉",
+        "视觉"
+      ],
+      "training_sample": null
+    },
+    {
+      "module": "章节摘要",
+      "chapter_index": 5,
+      "chapter_title": "第17章 逼白人签不平等条约",
+      "chapter_summary": "秦汉趁炮弹将尽迫白人求和，派李正签不平等条约索取保护费、割地、司法权，后筹备应对援军及招募人手。",
+      "word_count": 2100,
+      "emotional_tone": 6,
+      "chapter_end_hook": "秦汉打开盒子挑选武器，为即将到来的伏击战做准备",
+      "conflict_level": 7,
+      "plot_node_list": [
+        {
+          "event_description": "白人举白旗求和，秦汉趁炮弹剩最后几发下令停炮，避免弹尽粮绝",
+          "original_quote": "在炮弹只剩下最后几发的时候，秦汉终于看到几个人举着白棋走了出来。他赶紧下令停止开炮",
+          "emotion_score": 2
+        },
+        {
+          "event_description": "李正代表三利团练与亚伯拉罕谈判，提出保护费、割地、司法独立、惩凶四条，签订《道森条约》",
+          "original_quote": "赔款，割地，开放，惩凶。",
+          "emotion_score": 5
+        },
+        {
+          "event_description": "三利团练检查桑乔尸体，发现其身中两枪均系背后开枪，怀疑亚伯拉罕谎言",
+          "original_quote": "众人发现桑乔身中两枪，都是从背后开的枪，显然不可能是在战斗中打死的。",
+          "emotion_score": -3
+        },
+        {
+          "event_description": "秦汉部署应对伊格尔援军：布设伏击、监视城中老家伙、拉拢印第安人作战",
+          "original_quote": "莫传文，带人顺着育空河往下探路，给我找一个适合打伏击的地方",
+          "emotion_score": 1
+        },
+        {
+          "event_description": "秦汉派李正对外发布招募信息，承诺免费饭食和医疗以聚拢附近华人",
+          "original_quote": "告诉他们，只要来道森城，饭免费吃，病免费治！",
+          "emotion_score": 2
+        }
+      ],
+      "character_list": [
+        {
+          "name": "秦汉",
+          "role": "主角/三利村领导人",
+          "traits": [
+            "果断",
+            "有谋略",
+            "擅长制造神秘感"
+          ],
+          "is_new": false
+        },
+        {
+          "name": "李正",
+          "role": "三利团练大队长",
+          "traits": [
+            "兴奋",
+            "鄙夷",
+            "执行力强"
+          ],
+          "is_new": false
+        },
+        {
+          "name": "亚伯拉罕",
+          "role": "道森城商人及谈判代表",
+          "traits": [
+            "卑躬屈膝（伪装）",
+            "奸诈",
+            "贪婪"
+          ],
+          "is_new": false
+        },
+        {
+          "name": "余满江",
+          "role": "中队长",
+          "traits": [
+            "直言",
+            "忠诚"
+          ],
+          "is_new": false
+        },
+        {
+          "name": "莫传文",
+          "role": "中队长",
+          "traits": [
+            "执行力强"
+          ],
+          "is_new": false
+        },
+        {
+          "name": "莫传武",
+          "role": "中队长",
+          "traits": [
+            "谨慎"
+          ],
+          "is_new": false
+        },
+        {
+          "name": "张二麻",
+          "role": "劳改队负责人（前核心成员）",
+          "traits": [
+            "心狠手辣",
+            "矫枉过正"
+          ],
+          "is_new": false
+        },
+        {
+          "name": "桑乔",
+          "role": "已故道森城商人",
+          "traits": [],
+          "is_new": false
+        }
+      ],
+      "character_state_change": [
+        {
+          "name": "秦汉",
+          "situation": "成功控制道森城，筹备应对伊格尔援军",
+          "relationship": "核心心腹地位稳固，重新安排张二麻管理俘虏",
+          "cognition": "意识到人手短缺是制约发展的瓶颈"
+        },
+        {
+          "name": "李正",
+          "situation": "从战斗指挥转为谈判代表，代表三利团练与道森城签订条约",
+          "relationship": "与亚伯拉罕关系彻底敌对，心生鄙夷",
+          "cognition": "认清亚伯拉罕表面唯唯诺诺的伪装"
+        },
+        {
+          "name": "亚伯拉罕",
+          "situation": "道森城谈判代表，被迫接受苛刻条件",
+          "relationship": "对三利团练及华人产生怨恨与敌意",
+          "cognition": "认识到对手狡猾奸诈，但不得不认输"
+        },
+        {
+          "name": "张二麻",
+          "situation": "从核心圈边缘被安排至劳改队，管理黑人和印第安俘虏",
+          "relationship": "重新获得秦汉信任",
+          "cognition": "行为矫枉过正，极力表现忠诚"
+        },
+        {
+          "name": "余满江",
+          "situation": null,
+          "relationship": null,
+          "cognition": "怀疑桑乔死因有诈，认为主谋另有其人"
+        }
+      ],
+      "foreshadowing_set": [
+        {
+          "content": "伊格尔援军预计将至，三利村需提前布设伏击",
+          "planted_chapter": 5,
+          "hint": "后续将与伊格尔方向敌军展开决战"
+        },
+        {
+          "content": "育空开局人手不足，需招募华人和印第安人充实兵力",
+          "planted_chapter": 5,
+          "hint": "后续将通过免费医疗饭食等手段“爆兵”，组建多元势力"
+        },
+        {
+          "content": "桑乔身中背后两枪，亚伯拉罕谎言破绽百出",
+          "planted_chapter": 5,
+          "hint": "桑乔死因另有主谋，可能涉及亚伯拉罕或道森城内部势力"
+        },
+        {
+          "content": "张二麻被安排管理劳改队俘虏，手段心狠手辣",
+          "planted_chapter": 5,
+          "hint": "后续劳改队管理或俘虏问题可能引发新冲突"
+        }
+      ],
+      "foreshadowing_payoff": [],
+      "core_trope_usage_density": 7,
+      "chapter_end_hook_type": null,
+      "situation_change": null,
+      "relationship_change": null,
+      "cognition_change": null,
+      "emotion_direction": null,
+      "perceptible_change_flag": true,
+      "dialogue_ratio": 0.28,
+      "description_density": 0.32,
+      "timeline_node": "道森城攻克后，伊格尔援军到来前",
+      "sentence_pattern_features": {},
+      "source_page_range": null,
+      "chapter_title_style_type": null,
+      "paragraph_function_tags": [],
+      "key_dialogue_excerpt": [
+        "我现在还不想和他们见面，你去和他们谈。",
+        "赔款，割地，开放，惩凶。",
+        "凶手已经被贵方打死了，尸体已经带过来了。",
+        "告诉他们，只要来道森城，饭免费吃，病免费治！"
+      ],
+      "dialogue_iceberg_check": {},
+      "sensory_preference": [
+        "视觉"
+      ],
+      "training_sample": null
+    }
+  ],
+  "modules": {
+    "金手指/核心创意": {
+      "module": "金手指/核心创意",
+      "unique_setting": "主角秦汉作为现代“三和大神”在面馆老板引导下选蓝药丸穿越至1789年育空，获得副本系统与黄金盒子，携带八九式掷弹筒等近代火器在美洲原始丛林中建立华人势力，迫使白人殖民者签订不平等条约。",
+      "innovation": "将“穿越+基建+武器代差”与“华人反向殖民北美”相结合，以华人在美洲建立势力、反向签订不平等条约为核心叙事视角；副本系统与黄金盒子的兑换机制为资源获取提供游戏化规则。",
+      "core_gimmick": "现代火器对抗冷兵器时代的美洲殖民地，通过“黄金盒子兑换资源+副本系统任务”实现快速扩张，以“不平等条约”反向剥削白人势力，形成代差碾压与势力建设的双线爽点。",
+      "creativity_score": 8,
+      "execution_score": 7
+    },
+    "书名与简介": {
+      "module": "书名与简介",
+      "title_analysis": {
+        "memorability": 1,
+        "relevance": 0,
+        "comment": "当前书名“测试书”为纯占位符，缺乏记忆点，且与1789年华工穿越北美、以掷弹筒反击殖民军队的核心内容完全无关。建议改为具备时间、族群与地域标识的书名，如《1789：带着华工踏破美利坚》《育空枪声》或《华工踏破美利坚》。"
+      },
+      "blurb_hooks": [
+        "985高材生沦为“三和大神”，吞下蓝药丸穿越1789年育空雪原，开局仅凭黄金盒子与猎人套装面对暴风雪生死考验。",
+        "华工势力以四门八九式掷弹筒反杀白人殖民军队，趁胜追击迫使道森城签下赔款、割地、司法独立的不平等条约。",
+        "现代管理知识与冷兵器时代火力的碰撞：通过免费医疗、情报伏击和多族裔招募，在北美荒野一步步建立华人势力。",
+        "从被神秘面馆老板“观察”的实验品，成长为掌握谈判主权与军事实力的统帅，开启华人在美利坚的生存与崛起。"
+      ],
+      "blurb_effectiveness": "原书简介缺失，无法直接评估；基于已有章节摘要，题材具备“穿越+架空历史+殖民反击+势力建设”的强钩子，若简介能聚焦主角从三和大神到殖民地统帅的反差与掷弹筒炮火场景，转化率预计较高。",
+      "one_sentence_pitch": "一个985三和大神穿越1789年育空，率领华工用掷弹筒踏破美利坚，迫使白人殖民者签下不平等条约。"
+    },
+    "题材与定位": {
+      "module": "题材与定位",
+      "genre_tags": [
+        "穿越时空",
+        "历史架空",
+        "争霸流",
+        "系统流",
+        "军事战争",
+        "势力建设",
+        "反殖民",
+        "代差战争"
+      ],
+      "target_audience": "喜欢穿越架空、系统流与争霸建设的中文网络小说男性读者，尤其偏好历史反转、代差碾压及“华人反击殖民者”爽文的18-35岁受众",
+      "market_position": "中长篇穿越架空争霸网络小说，背景设定在1789年美洲育空地区，主打现代知识与系统外挂在殖民时代的代差碾压，兼具生存求存、战争对抗、外交谈判与势力扩张，定位于“反殖民爽文+基建争霸”细分市场",
+      "unique_selling_point": "主角秦汉以985高材生、三和大神身份穿越1789年育空雪原，携副本系统与黄金盒子，引入掷弹筒等现代火力带领华人团练与印第安人联手对抗白人殖民军队，并通过签订不平等条约索取赔款、割地与司法权，实现从个体求生到建立华人势力的逆袭，融合生存、代差战争、反殖民叙事与势力基建",
+      "target_platform": null,
+      "core_trope": "穿越争霸·系统外挂·代差以少胜多·反殖民签不平等条约·从底层打工人到势力主宰"
+    },
+    "人物图谱": {
+      "module": "人物图谱",
+      "protagonist": {
+        "name": "秦汉",
+        "desire": "在1789年育空雪原生存并建立势力，掌控道森城及周边资源，最终摆脱被观察命运",
+        "flaw": "缺乏本地情报与人手，初期过度依赖现代武器优势，容错率低",
+        "belief": "理性生存，长痛不如短痛，实力决定谈判筹码",
+        "arc": "从现代三和大神、失魂落魄的旁观者，到1789年育空地区的军事与政治领袖"
+      },
+      "supporting_chars": [
+        {
+          "name": "面馆老板",
+          "role": "神秘观察者/引荐者",
+          "relation_evolution": "从提供蓝红药丸的陌生引荐人，转变为暗中将秦汉视为实验对象的观察者"
+        },
+        {
+          "name": "李正",
+          "role": "大队长/核心心腹",
+          "relation_evolution": "从战斗指挥官转为三利团练谈判代表与秦汉的亲信执行者"
+        },
+        {
+          "name": "亚伯拉罕",
+          "role": "道森城商人/谈判代表",
+          "relation_evolution": "从道森军盟友与城中领袖，转为枪杀桑乔并嫁祸给费尔南德斯的敌对投机者，后被迫签署不平等条约"
+        },
+        {
+          "name": "张二麻",
+          "role": "劳改队负责人",
+          "relation_evolution": "从核心圈边缘成员，因管理俘虏手段重新获得秦汉信任"
+        },
+        {
+          "name": "余满江",
+          "role": "中队长",
+          "relation_evolution": "执行军事侦查与作战任务，对桑乔死因保持怀疑"
+        },
+        {
+          "name": "莫传文",
+          "role": "中队长",
+          "relation_evolution": "负责寻找伏击地点与路线探路"
+        },
+        {
+          "name": "莫传武",
+          "role": "中队长",
+          "relation_evolution": "谨慎执行部署，参与应对伊格尔援军准备"
+        }
+      ],
+      "antagonist": {
+        "name": "亚伯拉罕",
+        "pressure_model": "通过枪杀盟友桑乔、嫁祸已故将领费尔南德斯、伪装卑躬屈膝进行政治欺骗，并在城下炮击压力下推卸责任，对秦汉势力施加军事与信任双重压力",
+        "motivation": "保全道森城利益、推卸派兵失职责任、报复并反制华人势力",
+        "final_confrontation_chapter": 0
+      },
+      "character_relationship_graph": {
+        "nodes": [
+          "秦汉",
+          "面馆老板",
+          "李正",
+          "亚伯拉罕",
+          "费尔南德斯",
+          "桑乔",
+          "霍奇森",
+          "张二麻",
+          "余满江",
+          "莫传文",
+          "莫传武"
+        ],
+        "edges": [
+          {
+            "from": "秦汉",
+            "to": "面馆老板",
+            "relation": "被观察的实验对象与观察者"
+          },
+          {
+            "from": "面馆老板",
+            "to": "秦汉",
+            "relation": "赋予系统与初始物资的引荐者"
+          },
+          {
+            "from": "秦汉",
+            "to": "李正",
+            "relation": "统帅与核心心腹/大队长"
+          },
+          {
+            "from": "李正",
+            "to": "亚伯拉罕",
+            "relation": "三利团练谈判代表与道森城代表"
+          },
+          {
+            "from": "秦汉",
+            "to": "亚伯拉罕",
+            "relation": "攻城方与城防方，后为强迫条约的签署双方"
+          },
+          {
+            "from": "亚伯拉罕",
+            "to": "桑乔",
+            "relation": "枪杀并嫁祸的替罪羊关系"
+          },
+          {
+            "from": "亚伯拉罕",
+            "to": "霍奇森",
+            "relation": "共同谋划投降与推卸责任的合作者"
+          },
+          {
+            "from": "费尔南德斯",
+            "to": "亚伯拉罕",
+            "relation": "被栽赃的已故替罪羊"
+          },
+          {
+            "from": "秦汉",
+            "to": "张二麻",
+            "relation": "领导与劳改队俘虏管理者"
+          },
+          {
+            "from": "秦汉",
+            "to": "余满江",
+            "relation": "统帅与中队长"
+          },
+          {
+            "from": "秦汉",
+            "to": "莫传文",
+            "relation": "统帅与侦查中队长"
+          },
+          {
+            "from": "秦汉",
+            "to": "莫传武",
+            "relation": "统帅与作战中队长"
+          }
+        ]
+      },
+      "character_profile": {},
+      "character_arc": {},
+      "relationship_progression_nodes": [
+        {
+          "chapter": 2,
+          "description": "秦汉在黑暗空间与面馆老板相遇，选择蓝药丸穿越，双方从陌生客群转为观察者与被观察的实验对象关系。"
+        },
+        {
+          "chapter": 4,
+          "description": "亚伯拉罕在道森城枪杀桑乔并嫁祸给已死的费尔南德斯，与秦汉的敌对关系升级，秦汉开始怀疑道森城内部谎言。"
+        },
+        {
+          "chapter": 5,
+          "description": "李正代表秦汉与亚伯拉罕签订《道森条约》，双方关系从军事冲突转为被迫外交，秦汉确立对道森城的控制与筹码。"
+        }
+      ],
+      "ensemble_function_classification": {},
+      "dual_desire_design_validation": {}
+    },
+    "世界观设定": {
+      "module": "世界观设定",
+      "core_rules": "副本系统：穿越时间轴固定为1789年，地点轴仅限美洲；蓝药丸代表重新开始，红药丸代表一如既往；新穿越者获得黄金盒子作为初始兑换额度（约二阶魔方大小），可兑换基础生存物资与武器；面馆老板及其组织将穿越者视为观察对象，仅进行旁观记录，声称“我们仅仅只是想观察”。",
+      "factions": [
+        {
+          "name": "三利团练（华人势力）",
+          "desc": "由秦汉率领，驻扎育空道森城附近，拥有八九式掷弹筒等火器，攻克道森城后迫使白人签订《道森条约》，并计划招募华人、印第安人扩充力量。",
+          "chapters_involved": "第2-5章"
+        },
+        {
+          "name": "道森城/道森军（白人殖民势力）",
+          "desc": "由亚伯拉罕、桑乔、费尔南德斯等人物构成，贪婪且内斗严重，企图掠夺黄金，在三利团练攻势下溃败并被迫谈判。",
+          "chapters_involved": "第3-5章"
+        },
+        {
+          "name": "观察者组织",
+          "desc": "由面馆老板代表，将穿越者投放至异时空作为实验观察对象，声称“仅仅只是想观察”，真实目的未知。",
+          "chapters_involved": "第2章"
+        },
+        {
+          "name": "伊格尔援军",
+          "desc": "白人方面预计到来的援军力量，三利团练正筹备伏击应对。",
+          "chapters_involved": "第5章"
+        },
+        {
+          "name": "印第安人与黑人俘虏",
+          "desc": "被三利团练俘获或潜在拉拢的多元族群，张二麻负责管理劳改队俘虏，秦汉计划拉拢印第安人作战。",
+          "chapters_involved": "第5章"
+        }
+      ],
+      "unique_elements": [
+        "1789年育空雪原的华人穿越生存与军阀割据",
+        "八九式掷弹筒等近代火器提前出现于18世纪末美洲",
+        "华人势力反向对白人殖民者签订《道森条约》（赔款、割地、司法权）",
+        "副本系统与黄金盒子物资兑换机制",
+        "面馆老板与“观察者”组织的异时空实验设定",
+        "三和大神从现代底层转身成为异域统治者"
+      ],
+      "logic_consistency": "基于现有章节，穿越机制、系统规则与势力冲突逻辑自洽：主角通过蓝药丸进入1789年美洲，以系统兑换的火器建立三利团练，合理解释了近代武器出现在18世纪末的异常；各方势力动机（掠夺黄金、生存扩张、观察实验）清晰，冲突因果链条完整。但因仅呈现前5章摘要，后续体系如系统等级、观察者最终目的、火器大规模补给来源等尚未揭示，长期逻辑自洽性仍需后续章节验证。",
+      "world_immersion_score": 8,
+      "story_core": "现代三和大神秦汉在面馆老板的安排下穿越至1789年美育空，凭借副本系统与黄金盒子建立三利团练，以近代火器与白人殖民势力争夺道森城，并在观察者组织的旁观下进行异时空生存与势力扩张。",
+      "core_theme": "跨时空生存与底层逆袭、文明碰撞与反向殖民、个人在异世界中的抉择与成长"
+    },
+    "节奏与爽点": {
+      "module": "节奏与爽点",
+      "climax_points": [
+        {
+          "chapter": 2,
+          "type": "开局金手指",
+          "intensity": 8
+        },
+        {
+          "chapter": 3,
+          "type": "火力碾压战",
+          "intensity": 9
+        },
+        {
+          "chapter": 4,
+          "type": "围城心理战",
+          "intensity": 7
+        },
+        {
+          "chapter": 5,
+          "type": "不平等条约",
+          "intensity": 7
+        }
+      ],
+      "flat_periods": [
+        {
+          "chapters": "第1章",
+          "desc": "该条目无正文内容，节奏空白，无情感波动与冲突"
+        }
+      ],
+      "emotion_curve": [
+        {
+          "chapter": 1,
+          "value": 0
+        },
+        {
+          "chapter": 2,
+          "value": 4
+        },
+        {
+          "chapter": 3,
+          "value": 8
+        },
+        {
+          "chapter": 4,
+          "value": 6
+        },
+        {
+          "chapter": 5,
+          "value": 7
+        }
+      ],
+      "rhythm_score": 72,
+      "rhythm_map": [
+        {
+          "chapter": 1,
+          "type": "序章空白",
+          "note": "无正文内容，无法产生节奏波动"
+        },
+        {
+          "chapter": 2,
+          "type": "开局危机",
+          "note": "穿越获系统与黄金盒，立即陷入育空暴风雪生存危机"
+        },
+        {
+          "chapter": 3,
+          "type": "战斗高潮",
+          "note": "掷弹筒齐射重创道森军，敌方溃逃，山坡新敌制造悬念"
+        },
+        {
+          "chapter": 4,
+          "type": "持续施压",
+          "note": "城下缓慢炮击，城内混乱，亚伯拉罕枪杀桑乔嫁祸"
+        },
+        {
+          "chapter": 5,
+          "type": "战略收获",
+          "note": "迫签不平等条约、招募人手，为迎击伊格尔援军做准备"
+        }
+      ],
+      "selling_point_cycle_pattern": null,
+      "core_emotion_self_check_result": null
+    },
+    "主线与结构": {
+      "module": "主线与结构",
+      "main_storyline": "现代“三和大神”秦汉在神秘面馆老板引导下选择蓝药丸，穿越至1789年育空雪原，获得副本系统与黄金盒子。在极端生存环境下，他凭借现代军事知识组建三利团练，以八九式掷弹筒重创进攻的道森军，迫使道森城签订割地赔款的不平等条约，并筹备应对伊格尔援军与未知敌军，逐步在异时空建立华人势力。",
+      "structure": {
+        "acts": [
+          {
+            "act": "起",
+            "chapters": "第1章",
+            "summary": "秦汉在纯白空间与面馆老板相遇，选择蓝色药丸并穿越至1789年育空，获得副本系统与黄金盒子，在暴风雪中面临生死抉择，并听到神秘铃铛声。"
+          },
+          {
+            "act": "承",
+            "chapters": "第15-16章",
+            "summary": "三利团练与道森军多次交锋，秦汉以掷弹筒重创费尔南德斯部队并炮击道森城，迫使白人求和；城内亚伯拉罕枪杀桑乔并嫁祸给已死的费尔南德斯。"
+          },
+          {
+            "act": "转",
+            "chapters": "第16-17章",
+            "summary": "秦汉趁炮弹将尽迫白人签《道森条约》，索取保护费、割地与司法权；同时发现桑乔死因疑点及情报缺失，开始布署伏击应对伊格尔援军。"
+          },
+          {
+            "act": "合",
+            "chapters": "第17章",
+            "summary": "秦汉打开黄金盒子挑选武器准备伏击战，派人招募华人与印第安人，势力初步稳固，但伊格尔援军及山坡新敌军的威胁仍未解决，主线进入下一阶段。"
+          }
+        ]
+      },
+      "subplots": [
+        {
+          "name": "桑乔之死与嫁祸阴谋",
+          "chapters": "第15-16章",
+          "resolution_chapter": "第16章"
+        },
+        {
+          "name": "伊格尔援军威胁",
+          "chapters": "第17章",
+          "resolution_chapter": "未在提供章节中收束"
+        },
+        {
+          "name": "神秘铃铛与观察者组织",
+          "chapters": "第1章",
+          "resolution_chapter": "未在提供章节中收束"
+        },
+        {
+          "name": "张二麻管理劳改队与俘虏问题",
+          "chapters": "第17章",
+          "resolution_chapter": "未在提供章节中收束"
+        },
+        {
+          "name": "背面山坡新敌军出现",
+          "chapters": "第15章",
+          "resolution_chapter": "未在提供章节中收束"
+        }
+      ],
+      "structure_score": 65,
+      "seven_step_structure_analysis": null,
+      "inciting_incident_analysis": "秦汉在纯白空间与面馆老板相遇，选择蓝色药丸而非红色药丸，从而穿越至1789年育空并获得副本系统与黄金盒子，这一选择彻底改变其人生轨迹，拉开异域生存与势力扩张的主线序幕。",
+      "eight_act_structure_overview": [
+        {
+          "act": "钩子与日常",
+          "chapters": "第1章",
+          "summary": "秦汉作为现代三和大神，在面馆老板处面对蓝红药丸选择，决定穿越异时空。"
+        },
+        {
+          "act": "激励事件",
+          "chapters": "第1章",
+          "summary": "吞下蓝药丸后穿越至1789年育空，获得副本系统与黄金盒子，立即遭遇暴风雪生存危机。"
+        },
+        {
+          "act": "第一幕转折",
+          "chapters": "第1章",
+          "summary": "确立在异时空生存目标，获得初始物资与系统规则，听到神秘铃铛声预示未知势力。"
+        },
+        {
+          "act": "反应与应对",
+          "chapters": "第15章",
+          "summary": "组建三利团练，与道森军费尔南德斯部发生冲突，以八九式掷弹筒重创敌军。"
+        },
+        {
+          "act": "中点",
+          "chapters": "第16章",
+          "summary": "三利团练炮击道森城，迫使白人求和；道森城内部发生桑乔之死与嫁祸事件，双方关系转折。"
+        },
+        {
+          "act": "行动与反击",
+          "chapters": "第17章",
+          "summary": "签订《道森条约》，索取保护费与割地，部署伏击并招募华人印第安人壮大实力。"
+        },
+        {
+          "act": "高潮前夕",
+          "chapters": "第17章",
+          "summary": "打开黄金盒子挑选武器，为应对伊格尔援军及山坡新敌军的决战做准备。"
+        },
+        {
+          "act": "结局与新常态",
+          "chapters": "未在提供章节中展现",
+          "summary": "基于现有章节无法确定最终结局，主线仍在势力巩固与外部威胁解决之间推进。"
+        }
+      ],
+      "gap_progression_mechanism": "主角通过现代军事知识（掷弹筒、谈判策略、免费医疗招募）与18世纪殖民势力的武力代差制造代差优势，同时以情报缺失（缺乏窃听器、无人机）制造危机感，迫使主角不断补全短板、吸纳新成员，推动势力规模与地盘阶梯式扩张。",
+      "three_layer_conflict_rule": null,
+      "antagonistic_force_escalation_path": "自然环境压力（暴风雪生存）→ 常规军事压力（费尔南德斯率道森军进攻）→ 内部阴谋压力（亚伯拉罕枪杀桑乔、嫁祸与替罪羊操作）→ 外部未知压力（伊格尔援军及背面山坡新敌军）→ 组织观察压力（面馆老板“仅仅观察”的隐含威胁）。"
+    },
+    "开篇钩子": {
+      "module": "开篇钩子",
+      "first_500_words_hook": "开篇以强烈感官反差起笔：\"很黑，超乎想象的黑。紧接着就是亮，超乎想象的亮。\" 主角秦汉在纯白空间遭遇神秘面馆老板，面临蓝红药丸抉择，最终吞服蓝色药丸并穿越至1789年育空雪原。随即获得猎人套装与黄金盒子，却在暴风雪来袭前面临生死物资抉择，并听到若有若无的铃铛声。这一开局融合现代弃子穿越、系统副本、极端生存与未知悬念，试图在短时间内建立高概念钩子。",
+      "protagonist_first_impression": "秦汉，985高材生沦为三和大神的现代弃子，性格理性、有骨气、博览群书。在面馆老板的诱导下果断选择蓝色药丸，展现出在绝境中寻求重启的决心与冷静。初期形象为\"在规则外被选中的实验者\"，带有强烈的生存欲望与制度反差感，易引发读者共情与好奇。",
+      "chapter_end_hooks": [
+        {
+          "chapter": 1,
+          "hook": "秦汉在育空雪原面临暴风雪，犹豫物资选择时听到神秘铃铛声。",
+          "strength": 7
+        },
+        {
+          "chapter": 2,
+          "hook": "背面的山坡上又出现了一支队伍。",
+          "strength": 8
+        },
+        {
+          "chapter": 3,
+          "hook": "桑乔惨遭亚伯拉罕枪杀，两人密谋嫁祸给已死的费尔南德斯，三利团练城下炮击仍在继续，谈判与冲突悬念并存。",
+          "strength": 7
+        }
+      ],
+      "golden_three_effectiveness": "中等。第1章以穿越抉择与暴风雪生存危机建立了基础悬念，但数据中缺失真正的第2、3章连续摘要，后续直接跳至第15章战斗场景，导致黄金三章衔接断裂，世界观与主线推进缺乏平滑过渡，钩子强度未能持续有效释放。",
+      "drop_off_risk": "中高。第1章结尾铃铛声与暴风雪悬念具有一定留存力，但紧接章节索引不连续、内容跳跃（从第1章直接到第15章），新读者极易因信息断层和代入困难而流失，建议补充第2-3章完整摘要并重新评估。"
+    },
+    "可迁移模式": {
+      "module": "可迁移模式",
+      "structural_patterns": [
+        "穿越开篇以“白空间遇神秘观察者+二选一药丸”确立主角被选中身份与系统规则",
+        "以“黄金盒子/副本系统”作为初始资源池，通过额度限制制造生存稀缺与决策压力",
+        "采用“小规模遭遇战→围城持续打击→政治谈判与战略部署”的冲突升级阶梯",
+        "每章结尾设置具体未决悬念（神秘铃铛、未知新队伍、替罪羊阴谋、武器选择伏击）",
+        "以签订不平等条约将军事胜利转化为政治、经济与司法利益，形成攻城-谈判-布局闭环"
+      ],
+      "character_patterns": [
+        "主角拥有现代背景标签（如985高材生、底层打工者），以理性冷静和果断狡猾应对异世界",
+        "神秘观察者角色只给选择不给真相，以“仅仅想观察”制造组织暗线与读者好奇",
+        "反派呈现内部不和与互相嫁祸，使用替罪羊机制推动城内危机与主角谈判筹码",
+        "心腹团队分工明确（执行、谈判、俘虏管理），通过不同性格侧面反映主角领导力",
+        "炮灰角色负责吸引火力或成为嫁祸对象，降低主角道德负担并释放冲突"
+      ],
+      "rhythm_patterns": [
+        "以资源即将耗尽（炮弹只剩最后几发）迫使主角提前转入谈判，用紧迫感控制节奏",
+        "快速战斗与缓慢围城交替，慢速炮击如“钝刀割肉”制造城内恐慌与混乱",
+        "每章由“高强度冲突场景”收尾并留下钩子，保持读者跟读动力",
+        "人手与物资匮乏贯穿始终，以招募、伏击、情报缺失等线索持续推动下一阶段目标"
+      ],
+      "writing_techniques": [
+        "关键台词提炼为短句宣言（如“蓝色让你重新开始”“赔款，割地，开放，惩凶”）增强传播力",
+        "混合使用视觉、听觉、嗅觉描写（硝烟、铃铛、暴风雪）增强场景沉浸感",
+        "将现代军事/政治概念（掷弹筒、不平等条约、情报窃听）植入历史背景，制造认知反差",
+        "通过表面卑躬屈膝实则奸诈的反差塑造对手，提升博弈层次",
+        "伏笔双线并行：物理道具（黄金盒子大小）与悬念事件（铃铛、背后开枪）交替埋设并逐步兑现"
+      ],
+      "imitation_advice": "适合穿越战争、基建种田类小说创作。建议先为主角设定一段现代窘迫经历以获得共情，再赋予限额系统或资源盒作为金手指；情节安排上遵循“以现代武器取得初期军事优势→以条约锁定政治红利→布设伏击与招募队伍扩张势力”的闭环；每章结尾必须留一个具象但不明确的威胁或选择，并预埋1-2条可后期兑现的伏笔；对手最好设计内部矛盾，让主角在谈判中利用敌方内讧而非单纯靠武力碾压。"
+    },
+    "综合评分": {
+      "module": "综合评分",
+      "seven_dimension_rating": {
+        "topic": 4,
+        "structure": 4,
+        "character": 3,
+        "dialogue": 2,
+        "writing": 3,
+        "worldbuilding": 3,
+        "commercial": 4
+      },
+      "structure_review": {
+        "strengths": [
+          "开篇穿越获系统切入迅速，军事冲突节奏紧凑，暴风雪与铃铛等钩子设置有效",
+          "不平等条约、现代武器碾压等爽点明确，商业切入点清晰"
+        ],
+        "improvements": [
+          "配角刻画较为功能化，可进一步深化动机与弧光",
+          "对话丰富度与潜台词层次有待提升",
+          "世界观设定初步建立，后续需细化势力格局与系统规则"
+        ]
+      },
+      "one_sentence_summary": "985高材生穿越1789年育空，凭借副本系统与掷弹筒带领华人势力签订不平等条约、在美洲逆袭建立势力。"
+    },
+    "文风与语言": {
+      "module": "文风与语言",
+      "narrative_pov": "第三人称多视角有限全知视角，在穿越者秦汉、敌方将领费尔南德斯、道森城人物亚伯拉罕等之间切换，以战争与生存为轴心，既保持主角视角的信息优势，又通过敌方视角制造冲突张力。",
+      "dialogue_technique_summary": "对话比例较低（约15%-28%），以军事指令、谈判条款和神秘提示为主。台词短促功能鲜明，常直接暴露人物野心与阴险（如“冲过去，干掉这些黄种人”“赔款，割地，开放，惩凶”）。面馆老板与系统提示采用谜语式简短对话，制造未知感；战斗场景以喊杀与口令代替闲聊，增强紧迫感。",
+      "sentence_and_style_review": "文风偏网文快节奏，短句密集，特别是炮击与冲锋场景。章节标题带有强烈的网络文学标签与时间节点。历史背景（1789年育空）与现代系统流语言（“副本系统”“黄金盒子”“兑换额度”）交织，形成穿越爽文的语言反差。描写侧重视觉与听觉，章节结尾多用悬念钩子收尾。",
+      "language_fingerprint": {
+        "high_freq_patterns": [
+          "系统提示音【】",
+          "军事指令式短句",
+          "成语俗语改编（“杀鸡就要用牛刀”“长痛不如短痛”）",
+          "章节末尾悬念钩子",
+          "威胁与利诱并存的谈判台词"
+        ],
+        "vocabulary_preference": "以现代口语化与军事术语混合为主（掷弹筒、齐射、溃退、伏击、替罪羊），夹杂穿越系统流标志性词汇（蓝药丸、黄金盒子、副本、时间轴），兼顾淘金史背景词汇（白旗、不平等条约、保护费）。",
+        "rhythm_note": "战斗段落节奏急促，短句与爆炸性动词交替；谈判段落节奏相对缓慢但张力十足；全书以章节钩子制造阶段性高潮，整体呈现“紧-缓-紧”的网文叙事律动。"
+      },
+      "motif_image_system": [
+        "暴风雪与育空雪原（生存极限与未知环境）",
+        "掷弹筒与炮火（现代火力对冷兵器时代的碾压）",
+        "黄金与道森城（淘金热动机与财富贪欲）",
+        "蓝红药丸与黄金盒子（穿越契机与系统道具）",
+        "若有若无的铃铛声（未知势力与命运预兆）",
+        "白旗与不平等条约（投降、权力转移与殖民隐喻）"
+      ],
+      "style_boundary": [
+        "避免过度文学化的长段落环境描写，保持网文阅读节奏",
+        "控制现代网络用语出现频率，防止破坏18世纪末北美历史氛围",
+        "对话避免冗长说教，保持军事口令和商业谈判的简洁锐利",
+        "悬念适度释放，避免单章内过早揭示全部真相",
+        "血腥描写保持在网文可接受范围，侧重战略结果而非残酷细节"
+      ]
+    },
+    "伏笔与铺垫": {
+      "module": "伏笔与铺垫",
+      "foreshadowing_list": [
+        {
+          "id": 1,
+          "plant_chapter": 2,
+          "payoff_chapter": 0,
+          "description": "面馆老板称“我们仅仅只是想观察”，暗示秦汉被作为实验对象",
+          "function": "暗示观察者组织及其目的",
+          "is_resolved": false
+        },
+        {
+          "id": 2,
+          "plant_chapter": 2,
+          "payoff_chapter": 0,
+          "description": "黄金盒子仅有一个二阶魔方大小，为初始兑换额度",
+          "function": "物资匮乏将迫使秦汉在极端环境下做生死抉择",
+          "is_resolved": false
+        },
+        {
+          "id": 3,
+          "plant_chapter": 2,
+          "payoff_chapter": 0,
+          "description": "育空雪原正在酝酿暴风雪",
+          "function": "生存危机即将爆发",
+          "is_resolved": false
+        },
+        {
+          "id": 4,
+          "plant_chapter": 2,
+          "payoff_chapter": 0,
+          "description": "听到若有若无的铃铛声",
+          "function": "未知势力或危险即将出现",
+          "is_resolved": false
+        },
+        {
+          "id": 5,
+          "plant_chapter": 3,
+          "payoff_chapter": 0,
+          "description": "背面山坡突然出现的一支未知队伍",
+          "function": "后续可能发动新的进攻或制造新危机",
+          "is_resolved": false
+        },
+        {
+          "id": 6,
+          "plant_chapter": 3,
+          "payoff_chapter": 0,
+          "description": "费尔南德斯逃回道森城",
+          "function": "可能将情报带回，引发后续报复或冲突",
+          "is_resolved": false
+        },
+        {
+          "id": 7,
+          "plant_chapter": 4,
+          "payoff_chapter": 0,
+          "description": "秦汉意识到缺乏准确情报，打算下次准备窃听器、无人机等侦查手段",
+          "function": "后续可能引入现代侦查装置或情报网络",
+          "is_resolved": false
+        },
+        {
+          "id": 8,
+          "plant_chapter": 4,
+          "payoff_chapter": 0,
+          "description": "亚伯拉罕称费尔南德斯只不过是他们的炮灰",
+          "function": "暗示道森城背后或存在更高层势力",
+          "is_resolved": false
+        },
+        {
+          "id": 9,
+          "plant_chapter": 4,
+          "payoff_chapter": 0,
+          "description": "桑乔临死前被揭露比费尔南德斯更像幕后黑手",
+          "function": "桑乔之死或引发三利团练对道森城内部的进一步追查",
+          "is_resolved": false
+        },
+        {
+          "id": 10,
+          "plant_chapter": 5,
+          "payoff_chapter": 0,
+          "description": "伊格尔援军预计将至，三利村需提前布设伏击",
+          "function": "后续将与伊格尔方向敌军展开决战",
+          "is_resolved": false
+        },
+        {
+          "id": 11,
+          "plant_chapter": 5,
+          "payoff_chapter": 0,
+          "description": "育空开局人手不足，需招募华人和印第安人充实兵力",
+          "function": "后续将通过免费医疗饭食等手段“爆兵”，组建多元势力",
+          "is_resolved": false
+        },
+        {
+          "id": 12,
+          "plant_chapter": 5,
+          "payoff_chapter": 0,
+          "description": "桑乔身中背后两枪，亚伯拉罕谎言破绽百出",
+          "function": "桑乔死因另有主谋，可能涉及亚伯拉罕或道森城内部势力",
+          "is_resolved": false
+        },
+        {
+          "id": 13,
+          "plant_chapter": 5,
+          "payoff_chapter": 0,
+          "description": "张二麻被安排管理劳改队俘虏，手段心狠手辣",
+          "function": "后续劳改队管理或俘虏问题可能引发新冲突",
+          "is_resolved": false
+        }
+      ],
+      "information_asymmetry": "主角秦汉持有副本系统与黄金盒子等穿越者金手指，掌握现代战争与资源管理知识，而道森城居民仅具备传统殖民军事情报，双方认知与资源存在显著不对称；同时读者知晓面馆老板的“观察”设定，但秦汉本人仍处于被观察的无知状态，形成读者与主角之间的信息差。",
+      "continuity": "伏笔从第2章的极端生存环境（暴风雪、铃铛声）线性延伸至第3-5章的军事与政治博弈（未知队伍、伊格尔援军、内部替罪羊暗示），呈现“生存—作战—治理”的递进铺垫；截至第5章所有伏笔仍处于埋设阶段，未出现显式回收，属于前置密集埋设、后期延迟闭环的结构，连续性基础尚好但亟待后续章节回收验证。",
+      "foreshadowing_score": 58,
+      "foreshadowing_master_table": [
+        {
+          "content": "面馆老板称“我们仅仅只是想观察”，暗示秦汉被作为实验对象",
+          "set_chapter": 2,
+          "payoff_chapter": 0,
+          "gap_chapters": 0,
+          "function": "暗示观察者组织及其目的"
+        },
+        {
+          "content": "黄金盒子仅有一个二阶魔方大小，为初始兑换额度",
+          "set_chapter": 2,
+          "payoff_chapter": 0,
+          "gap_chapters": 0,
+          "function": "物资匮乏将迫使秦汉在极端环境下做生死抉择"
+        },
+        {
+          "content": "育空雪原正在酝酿暴风雪",
+          "set_chapter": 2,
+          "payoff_chapter": 0,
+          "gap_chapters": 0,
+          "function": "生存危机即将爆发"
+        },
+        {
+          "content": "听到若有若无的铃铛声",
+          "set_chapter": 2,
+          "payoff_chapter": 0,
+          "gap_chapters": 0,
+          "function": "未知势力或危险即将出现"
+        },
+        {
+          "content": "背面山坡突然出现的一支未知队伍",
+          "set_chapter": 3,
+          "payoff_chapter": 0,
+          "gap_chapters": 0,
+          "function": "后续可能发动新的进攻或制造新危机"
+        },
+        {
+          "content": "费尔南德斯逃回道森城",
+          "set_chapter": 3,
+          "payoff_chapter": 0,
+          "gap_chapters": 0,
+          "function": "可能将情报带回，引发后续报复或冲突"
+        },
+        {
+          "content": "秦汉意识到缺乏准确情报，打算下次准备窃听器、无人机等侦查手段",
+          "set_chapter": 4,
+          "payoff_chapter": 0,
+          "gap_chapters": 0,
+          "function": "后续可能引入现代侦查装置或情报网络"
+        },
+        {
+          "content": "亚伯拉罕称费尔南德斯只不过是他们的炮灰",
+          "set_chapter": 4,
+          "payoff_chapter": 0,
+          "gap_chapters": 0,
+          "function": "暗示道森城背后或存在更高层势力"
+        },
+        {
+          "content": "桑乔临死前被揭露比费尔南德斯更像幕后黑手",
+          "set_chapter": 4,
+          "payoff_chapter": 0,
+          "gap_chapters": 0,
+          "function": "桑乔之死或引发三利团练对道森城内部的进一步追查"
+        },
+        {
+          "content": "伊格尔援军预计将至，三利村需提前布设伏击",
+          "set_chapter": 5,
+          "payoff_chapter": 0,
+          "gap_chapters": 0,
+          "function": "后续将与伊格尔方向敌军展开决战"
+        },
+        {
+          "content": "育空开局人手不足，需招募华人和印第安人充实兵力",
+          "set_chapter": 5,
+          "payoff_chapter": 0,
+          "gap_chapters": 0,
+          "function": "后续将通过免费医疗饭食等手段“爆兵”，组建多元势力"
+        },
+        {
+          "content": "桑乔身中背后两枪，亚伯拉罕谎言破绽百出",
+          "set_chapter": 5,
+          "payoff_chapter": 0,
+          "gap_chapters": 0,
+          "function": "桑乔死因另有主谋，可能涉及亚伯拉罕或道森城内部势力"
+        },
+        {
+          "content": "张二麻被安排管理劳改队俘虏，手段心狠手辣",
+          "set_chapter": 5,
+          "payoff_chapter": 0,
+          "gap_chapters": 0,
+          "function": "后续劳改队管理或俘虏问题可能引发新冲突"
+        }
+      ],
+      "scattered_plot_fallback_list": [
+        "面馆老板的“观察”真实目的及组织背景",
+        "黄金盒子的兑换上限与后续升级路径",
+        "育空雪原铃铛声的来源与归属",
+        "背面山坡未知队伍的身份与意图",
+        "费尔南德斯逃回后向道森城传递的情报内容",
+        "窃听器、无人机等现代侦查手段是否能在异时空实现",
+        "道森城背后更高层势力的具体面目",
+        "桑乔背后两枪的真正主谋",
+        "伊格尔援军的兵力规模与进攻时机",
+        "张二麻管理俘虏期间可能爆发的冲突"
+      ]
+    }
+  },
+  "training_dataset_meta": {
+    "dataset_name": "测试书",
+    "dataset_version": "v1",
+    "total_samples": 0,
+    "sample_count_by_task": {},
+    "chunk_count": 0,
+    "avg_chunk_word_count": null,
+    "prompt_template_coverage": {},
+    "genre_distribution": null,
+    "source_book_count": 1,
+    "book_level_instruction": null,
+    "book_level_output": null,
+    "style_profile": null,
+    "plot_summary_for_style": null,
+    "book_level_chosen": null,
+    "book_level_rejected": null,
+    "preference_rubric": null,
+    "license": null,
+    "copyright_review_status": null,
+    "dedup_report": null,
+    "audit_sample_rate": null,
+    "data_origin_pipeline": "BookerNovelTool/v1"
+  }
+}

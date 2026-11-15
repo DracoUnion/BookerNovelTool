@@ -1,393 +1,359 @@
-# 小说拆书工具（Novel-Splitter）概要设计文档
+# 小说拆书工具技术文章
 
-## 1. 系统概述
+## 它到底在干什么？
 
-### 1.1 目标
+你手里有一本几十万字的网络小说，想从中提炼出结构化的分析数据，甚至进一步构造出能喂给大模型做微调的训练样本。手动读、手动标注，几百章下来人直接废了。
 
-将海量小说文本自动拆解为结构化数据，为后续微调写作大模型提供高质量训练语料。核心能力：
+这个工具的核心思路就一句话：**让 LLM 当"读书人"，把书一章一章读完，边读边做笔记，最后把全部笔记汇总成 12 个维度的分析报告**。
 
-- **逐章滚动处理**：突破模型上下文限制，用外部状态维持全书一致性
-- **结构化提取**：从每章提取摘要、场景、角色、设定、伏笔、时间线
-- **训练对生成**：自动构造“骨架→正文”“描述→场景”等微调样本
-- **增量可恢复**：支持断点续跑，避免长任务失败重头再来
+它不试图让模型一次性读完整本书（上下文塞不下），而是把任务拆成两层：
 
-### 1.2 设计原则
-
-| 原则 | 说明 |
-|---|---|
-| 状态外置 | 全书一致性靠 `state.json`，不靠模型上下文 |
-| 单章处理 | 每次 LLM 调用只喂“压缩状态 + 当前章” |
-| 幂等可恢复 | 每章独立产物，失败可单独重跑 |
-| 分层降级 | 长章自动切场景；状态过长自动压缩/检索 |
-| 人工可介入 | 冲突标记 + 抽检接口，不追求全自动 |
+- **第一层（章节扫描）**：每章独立调用一次 LLM，只喂这一章的正文，让它输出一个结构化的"章节摘要"。几百章就是几百次调用，可以并发跑。
+- **第二层（模块聚合）**：所有章节摘要都拿到后，再跑 12 个 LLM 调用，每个负责一个分析维度（题材、节奏、人物图谱……），把全书信息汇总成最终报告。
 
 ---
 
-## 2. 总体架构
+## 代码架构总览
 
+```mermaid
+graph LR
+    subgraph CLI
+        A[novel-anls 子命令] --> B[BookAnalyzerOrchestrator]
+    end
+    subgraph 编排
+        B --> C[extract_text_from_epub]
+        C --> D[Stage1: 并行章节扫描]
+        D --> E[Stage2: 并行模块聚合]
+        E --> F[save_report]
+    end
+    subgraph 智能体
+        D --> G[NovelAnlsAgent.scan_chapter]
+        E --> G[NovelAnlsAgent.aggregate_module]
+    end
+    subgraph 提示词
+        G --> H[novel_anls_pmt.py<br/>SCAN_PMT + 12个聚合模板]
+    end
+    subgraph 模型
+        G --> I[novel_anls_models.py<br/>ChapterSummary + 12个模块模型]
+    end
+    subgraph LLM
+        G --> J[OpenAIClient.call_llm_retry]
+    end
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                        CLI 层 (click/typer)                  │
-│   split / resume / status / export / inspect / validate     │
-└───────────────────────────┬─────────────────────────────────┘
-                            │
-┌───────────────────────────▼─────────────────────────────────┐
-│                      编排层 (Pipeline)                       │
-│  ChapterLoop → ExtractStage → MergeStage → PersistStage     │
-└───────┬──────────────┬──────────────┬──────────────┬────────┘
-        │              │              │              │
-┌───────▼──────┐ ┌─────▼──────┐ ┌─────▼──────┐ ┌────▼───────┐
-│  预处理模块   │ │  提取模块   │ │  状态模块   │ │  导出模块   │
-│ Preprocessor │ │ Extractor  │ │ StateMgr   │ │ Exporter   │
-│ 切章/切场景   │ │ LLM调用     │ │ 合并/压缩   │ │ JSONL输出  │
-└───────┬──────┘ └─────┬──────┘ └─────┬──────┘ └────┬───────┘
-        │              │              │              │
-┌───────▼──────────────▼──────────────▼──────────────▼───────┐
-│                    基础设施层 (Infra)                        │
-│  LLM Client │ Prompt Store │ Vector Store │ Logger │ Cache  │
-└─────────────────────────────────────────────────────────────┘
-                            │
-┌───────────────────────────▼─────────────────────────────────┐
-│                      持久化层 (Storage)                      │
-│  state.json │ chapters/*.json │ outputs/*.jsonl │ logs/     │
-└─────────────────────────────────────────────────────────────┘
-```
+
+四个文件各司其职：
+
+| 文件 | 职责 | 类比 |
+|---|---|---|
+| `novel_anls.py` | 编排器，调度整个流程 | 项目经理 |
+| `novel_anls_agent.py` | 智能体，封装 LLM 调用和解析 | 执行者 |
+| `novel_anls_pmt.py` | 所有提示词模板 | 任务书 |
+| `novel_anls_models.py` | 所有 Pydantic 数据模型 | 验收标准 |
 
 ---
 
-## 3. 模块设计
+## 智能体编排流程
 
-### 3.1 预处理模块（Preprocessor）
+### 整体时序
 
-**职责**：把原始小说变成可逐章处理的干净章节。
+```mermaid
+sequenceDiagram
+    participant CLI as CLI 入口
+    participant Orch as Orchestrator
+    participant Agent as Agent
+    participant LLM as LLM API
 
-| 功能 | 说明 |
-|---|---|
-| 格式解析 | 支持 txt / epub / md，统一转纯文本 |
-| 章节切分 | 正则匹配“第X章/卷/节/Chapter X”，失败时按长度兜底切分 |
-| 场景切分 | 章内按空行、分隔符或 LLM 辅助切成 2~5 个场景块 |
-| 长度控制 | 单块超过 `max_chunk_tokens` 时二次切分，相邻块重叠 200~500 字 |
-| 清洗 | 去页眉页脚、广告、乱码、多余空白 |
-| 元信息抽取 | 标题、作者、章节数、总字数 |
+    CLI->>Orch: novel_anls(args)
+    Orch->>Orch: load_chapters()<br/>EPUB 解析
 
-**输出**：`chapters/ch_{id}.json`，含 `id, title, blocks[], char_count`。
+    rect rgb(230, 245, 255)
+        note right of Orch: 阶段一：并行扫描
+        par 章节 1
+            Orch->>Agent: scan_chapter(ch1)
+            Agent->>LLM: SCAN_PMT + ch1文本
+            LLM-->>Agent: JSON 摘要
+            Agent-->>Orch: ChapterSummary
+        and 章节 2
+            Orch->>Agent: scan_chapter(ch2)
+            Agent->>LLM: SCAN_PMT + ch2文本
+            LLM-->>Agent: JSON 摘要
+            Agent-->>Orch: ChapterSummary
+        and 章节 N
+            Orch->>Agent: scan_chapter(chN)
+            Agent->>LLM: SCAN_PMT + chN文本
+            LLM-->>Agent: JSON 摘要
+            Agent-->>Orch: ChapterSummary
+        end
+    end
 
-### 3.2 提取模块（Extractor）
+    Orch->>Orch: self.summaries = 全部摘要
 
-**职责**：调用 LLM，从单章（或单场景块）提取结构化信息。
+    rect rgb(255, 245, 230)
+        note right of Orch: 阶段二：并行聚合
+        par 题材模块
+            Orch->>Agent: aggregate_module("题材与定位")
+            Agent->>LLM: AGGREGATE_PMT_GENRE + 全部摘要
+            LLM-->>Agent: JSON 模块
+            Agent-->>Orch: GenreModule
+        and 节奏模块
+            Orch->>Agent: aggregate_module("节奏与爽点")
+            Agent->>LLM: AGGREGATE_PMT_RHYTHM + 全部摘要
+            LLM-->>Agent: JSON 模块
+            Agent-->>Orch: RhythmModule
+        and 其他 10 个模块
+            Orch->>Agent: ...
+        end
+    end
 
-**输入组装**：
-```
-[System] 提取指令（固定）
-[User]   压缩全局状态 + 当前章正文 + 输出 schema
-```
-
-**输出字段**（JSON Schema 固定）：
-
-```json
-{
-  "chapter_id": 12,
-  "chapter_summary": "200字以内",
-  "scenes": [{"loc":"","chars":[],"goal":"","conflict":"","result":""}],
-  "characters": [{"name":"","aliases":[],"change":"","status":""}],
-  "settings": [{"key":"","value":"","change_type":"new/update"}],
-  "foreshadowing": [{"id":"","desc":"","action":"plant/resolve"}],
-  "timeline": [{"event":"","time_hint":""}],
-  "training_pairs": [{"task":"skeleton2text","input":"","output":""}],
-  "conflict": false
-}
-```
-
-**关键机制**：
-
-| 机制 | 说明 |
-|---|---|
-| JSON 模式 | 强制 `response_format=json`，降低解析失败 |
-| 低温度 | temperature=0.1~0.3，保证稳定 |
-| 重试 | 解析失败重试 2~3 次，指数退避 |
-| 分块合并 | 长章分块提取后，再用一次 LLM 合并为章级结果 |
-| 缓存 | 以 `hash(chapter_text + prompt_version)` 为 key，避免重复调用 |
-
-### 3.3 状态模块（StateManager）
-
-**职责**：维护并更新全局状态 `state.json`，这是全书一致性的核心。
-
-**状态结构**：
-
-```json
-{
-  "book_meta": {"title":"","genre":"","main_plot":""},
-  "rolling_summary": "前情提要，≤500字",
-  "characters": [{"name":"","aliases":[],"role":"","status":"","last_seen":12,"arc":""}],
-  "locations": [],
-  "items": [],
-  "timeline": [],
-  "open_threads": [{"id":"","desc":"","planted_ch":3,"status":"open"}],
-  "chapter_summaries": [{"ch":1,"summary":"","detail":""}]
-}
+    Orch->>Orch: save_report()
+    Orch-->>CLI: 完成
 ```
 
-**更新流程**：
+### 阶段一：并行章节扫描
 
-```
-旧状态 + 本章提取结果 → LLM 合并 → 新状态
-                          ↓
-              规则校验（角色去重、伏笔状态机）
-                          ↓
-              压缩（早期章节摘要降级为一句）
-                          ↓
-              持久化 state.json + 快照
-```
+用 `ThreadPoolExecutor` 并发跑所有章节，默认 8 个线程。每章是独立的 LLM 调用，互相不依赖，所以可以安全并发。
 
-**压缩策略**：
-
-- 最近 3 章保留详细摘要，更早只留一句话
-- 角色只保留主要角色 + 当前章相关角色（按 `last_seen` 和出场频次）
-- 已回收伏笔移入历史，不注入下一章提示词
-- 状态超过 `state_budget_tokens` 时，对 `characters/settings` 做向量检索注入
-
-### 3.4 检索模块（Retriever，可选）
-
-当状态过大时启用：
-
-- 把角色卡、设定、伏笔写入向量库（如 Chroma/FAISS）
-- 处理当前章时，用章节摘要做 query，召回 Top-K 相关条目
-- 只把召回的条目注入提示词，替代全量状态
-
-### 3.5 导出模块（Exporter）
-
-**职责**：把训练对导出为微调可用格式。
-
-| 格式 | 用途 |
-|---|---|
-| JSONL (ChatML) | Qwen 系列 SFT 微调 |
-| JSONL (preference) | ORPO 偏好对（好/差输出） |
-| 结构化 JSON | 人工审阅、二次加工 |
-| Markdown 摘要 | 书籍大纲、角色谱系 |
-
-**ChatML 样例**：
-```json
-{"messages":[
-  {"role":"system","content":"你是一位中文网文写作助手"},
-  {"role":"user","content":"任务：正文增强\n输入：{skeleton}"},
-  {"role":"assistant","content":"{original_text}"}
-]}
-```
-
-### 3.6 基础设施（Infra）
-
-| 组件 | 说明 |
-|---|---|
-| LLM Client | 统一接口，支持 OpenAI / Anthropic / 本地 vLLM / Ollama，可配置 fallback |
-| Prompt Store | 提示词模板集中管理，带版本号，便于 A/B 与回溯 |
-| Logger | 结构化日志，记录每章耗时、token、重试、冲突 |
-| Cache | 本地文件缓存（sqlite/parquet），按 hash 命中 |
-| Config | YAML 配置 + 环境变量覆盖 |
-
----
-
-## 4. 数据流与文件布局
-
-```
-project/
-├── config.yaml
-├── data/
-│   ├── raw/novel.txt
-│   ├── chapters/
-│   │   ├── ch_0001.json
-│   │   └── ...
-│   ├── state/
-│   │   ├── global_state.json
-│   │   └── snapshots/ch_0100.json
-│   ├── outputs/
-│   │   ├── training_pairs.jsonl
-│   │   ├── summaries.md
-│   │   └── review_queue.jsonl
-│   └── cache/
-└── logs/
-    └── run_20261011.log
-```
-
----
-
-## 5. CLI 接口设计
-
-```bash
-# 1. 预处理：切章 + 切场景
-novel-split preprocess --input data/raw/novel.txt --out data/chapters/
-
-# 2. 拆书主流程（逐章提取 + 状态滚动）
-novel-split split --config config.yaml
-
-# 3. 断点续跑（从上次中断处继续）
-novel-split resume --config config.yaml
-
-# 4. 指定章节范围重跑
-novel-split split --from 100 --to 150 --force
-
-# 5. 查看进度与状态
-novel-split status
-novel-split inspect --chapter 42
-
-# 6. 导出训练数据
-novel-split export --format chatml --out data/outputs/train.jsonl
-novel-split export --format preference --out data/outputs/orpo.jsonl
-
-# 7. 一致性校验与人工抽检
-novel-split validate --sample 20
-novel-split review --conflicts-only
-```
-
----
-
-## 6. 核心流程伪代码
+关键细节：结果按章节序号排序后存入 `self.summaries`，保证传给第二阶段的顺序稳定。
 
 ```python
-def run_pipeline(cfg):
-    chapters = load_chapters(cfg.data_dir)
-    state = load_or_init_state(cfg.state_path)
-    
-    for ch in chapters:
-        if ch.id < cfg.start_from or already_done(ch, cfg):
-            continue
-        
-        try:
-            # 1. 组装上下文
-            ctx = build_context(state, ch, cfg)
-            
-            # 2. 提取（含长章分块）
-            if ch.token_count > cfg.max_chunk_tokens:
-                blocks = ch.blocks
-                partials = [extract(block, ctx) for block in blocks]
-                result = merge_partials(partials, ch)
-            else:
-                result = extract(ch, ctx)
-            
-            # 3. 冲突检测
-            if detect_conflict(state, result):
-                result["conflict"] = True
-                enqueue_review(ch, result)
-            
-            # 4. 状态合并
-            state = merge_state(state, result)
-            
-            # 5. 持久化
-            save_json(f"chapters/ch_{ch.id}.json", result)
-            save_json("state/global_state.json", state)
-            if ch.id % cfg.snapshot_every == 0:
-                save_snapshot(state, ch.id)
-            
-            log_success(ch, result)
-        
-        except Exception as e:
-            log_error(ch, e)
-            if cfg.fail_fast:
-                raise
-            continue
-    
-    export_training_pairs(cfg)
+# 单章扫描任务（线程池调用）
+def _scan_single_chapter(self, chapter: Chapter) -> ChapterSummary:
+    return chapter.index, self.agent.scan_chapter(
+        chapter_index=chapter.index,
+        chapter_title=chapter.title,
+        chapter_text=chapter.text,
+    )
+```
+
+### 阶段二：并行模块聚合
+
+12 个模块彼此独立（每个只读全部章节摘要，不读其他模块），所以也可以并发，默认 10 个线程。
+
+每个模块失败不影响其他模块——失败的结果被存为 `{"error": "..."}` 写进报告，不会中断整个流程。
+
+### 字段级容错（parse 兜底）
+
+LLM 输出 JSON 时偶尔会给出非法的枚举值（比如 `emotion_direction: "up2"`）。如果整个 `parse_obj_as` 因此报错，整章就废了。
+
+所以 `parse` 回调里加了一层兜底：捕获 `ValidationError`，把出错的那个顶层字段置为 `None`，再重新校验一次。单字段出错不会拖垮整章。
+
+```python
+def parse(raw):
+    data = json.loads(ext_code_block(raw))
+    try:
+        return parse_obj_as(ChapterSummary, data)
+    except ValidationError as e:
+        for err in e.errors():
+            top_key = err["loc"][0]
+            if top_key in data:
+                data[top_key] = None   # 置 None 重试
+        return parse_obj_as(ChapterSummary, data)
 ```
 
 ---
 
-## 7. 配置设计（config.yaml）
+## 提示词设计
 
-```yaml
-llm:
-  provider: openai          # openai / anthropic / vllm / ollama
-  model: gpt-4o-mini
-  temperature: 0.2
-  max_tokens: 4096
-  timeout: 120
-  retry: 3
-  fallback:
-    provider: ollama
-    model: qwen2.5:14b
+### 渲染机制
 
-preprocess:
-  min_chapter_chars: 800
-  max_chunk_tokens: 3000
-  overlap_tokens: 300
-  chapter_pattern: "^第[零一二三四五六七八九十百千万\\d]+[章节卷]"
+所有提示词模板用 `{占位符}` 表示动态内容，字面量花括号必须写成 `{{ }}`。渲染时用正则替换 `{xxx}`，`{{ }}` 还原成 `{ }`。
 
-state:
-  state_budget_tokens: 2500
-  recent_chapters_detailed: 3
-  enable_vector_retrieval: true
-  vector_top_k: 8
+```python
+# 模板里写：
+"chapter_index": {chapter_index}    # 占位符，渲染时替换
 
-pipeline:
-  snapshot_every: 50
-  fail_fast: false
-  concurrency: 4            # 并发处理章数（注意状态顺序依赖）
-  cache_enabled: true
+# 模板里写：
+"character_list": [{{"name": "..."}}]   # 字面量花括号，渲染后还原
 
-export:
-  formats: [chatml, preference, markdown]
-  min_output_chars: 120
+# 渲染结果：
+"chapter_index": 5
+"character_list": [{"name": "..."}]
 ```
 
----
+### 章节扫描提示词（SCAN_PMT）
 
-## 8. 错误处理与一致性保障
+这是整个系统里最复杂的提示词，要求模型从单章正文输出约 30 个字段。设计上有几个关键约束：
 
-| 场景 | 策略 |
+| 约束 | 原因 |
 |---|---|
-| LLM 返回非 JSON | 正则兜底 + 重试 + 降级到 fallback 模型 |
-| 长章切块失败 | 按固定 token 强切，标记 `low_quality` |
-| 状态合并冲突 | 标记 `conflict=true`，写入 review 队列，不阻断流程 |
-| 专有名词被改写 | 提示词约束 + 后处理替换表（从 state 里的 aliases 生成） |
-| 中途崩溃 | 章级 checkpoint，`resume` 从最后成功章继续 |
-| 并发写状态冲突 | 状态更新串行；仅提取阶段可并发 |
+| `plot_node_list` 最多 5 条 | 防止模型列出几十条，浪费 token |
+| `foreshadowing_payoff.set_chapter ≤ 当前章号` | 单章扫描看不到未来，只能报告"回收了之前哪章的伏笔" |
+| `is_new` 明确区分首次登场 | 否则模型会把所有角色都标 `true` |
+| 枚举字段无法判断填 `null` | 防止模型瞎猜 |
+| P2 字段无法判断填 `null` 或 `[]` | 不要求模型编造数据 |
+| `training_sample` 默认 `null` | 训练数据生成是独立 pipeline，扫描阶段不强制生成 |
+
+输出格式部分直接给出完整的 JSON 结构示例，让模型照着填，大幅降低解析失败率。
+
+### 模块聚合提示词（12 个）
+
+每个模块一个独立的提示词模板，结构完全统一：
+
+```
+任务描述
+输出格式（JSON 示例）
+[content] 全部章节摘要 [/content]
+[content] 书籍元信息 [/content]
+```
+
+章节摘要和书籍元信息用 `[content]...[/content]` 包裹，这是为了和"JSON 输出用三个反引号包裹"的约定区分开——模型输出 JSON 时知道要加反引号，输入上下文时知道内容是数据不是指令。
 
 ---
 
-## 9. 质量保障机制
+## 数据模型设计
 
-1. **抽检**：每 20~50 章随机抽 1 章，人工核对角色/伏笔/时间线
-2. **一致性校验**：脚本比对 state 中角色出现章节与原文实际出现章节
-3. **训练对过滤**：导出前按长度、重复率、专有名词一致性过滤
-4. **提示词版本管理**：每次改 prompt 记版本号，训练对中保留版本便于回溯
-5. **成本与耗时统计**：记录每章 token 消耗、耗时、重试次数
+### 层次结构
 
----
+```mermaid
+graph TD
+    subgraph 基础模型
+        Ch[Chapter<br/>EPUB 解析出的单章]
+        BM[BookMeta<br/>书名/作者/简介]
+    end
 
-## 10. 技术选型建议
+    subgraph 章节扫描
+        CS[ChapterSummary<br/>章节摘要]
+        PN[PlotNode<br/>事件节点]
+        CB[CharacterBrief<br/>人物简述]
+        CSC[CharacterStateChange<br/>状态变化]
+        FS[ForeshadowingSet<br/>新埋伏笔]
+        FP[ForeshadowingPayoff<br/>回收伏笔]
+        TS[TrainingSample<br/>训练样本]
+    end
 
-| 层 | 推荐 |
-|---|---|
-| CLI | `typer` + `rich` |
-| 配置 | `pydantic-settings` + YAML |
-| LLM 调用 | `openai` SDK / `litellm`（统一多provider） |
-| JSON 校验 | `pydantic` + `jsonschema` |
-| 向量库 | `chromadb` 或 `faiss` |
-| 缓存 | `diskcache` 或 sqlite |
-| 并发 | `asyncio` + `httpx`（提取阶段），状态更新串行 |
-| 日志 | `loguru` 或标准 `logging` + JSON formatter |
-| 打包 | `uv` / `poetry`，入口 `novel-split` |
+    subgraph 全书模块 ×12
+        GM[GenreModule]
+        TM[TitleModule]
+        WM[WorldModule]
+        CM[CharacterModule]
+        SM[StructureModule]
+        RM[RhythmModule]
+        GM2[GimmickModule]
+        OM[OpeningModule]
+        FM[ForeshadowModule]
+        PM[PatternModule]
+        STM[StyleModule]
+        RAT[RatingModule]
+    end
 
----
+    subgraph 报告
+        BAR[BookAnalysisReport<br/>完整报告]
+        TDM[TrainingDatasetMeta<br/>训练数据元信息]
+    end
 
-## 11. 可扩展方向
+    CS --> PN
+    CS --> CB
+    CS --> CSC
+    CS --> FS
+    CS --> FP
+    CS --> TS
+    BAR --> CS
+    BAR --> TDM
+    BAR --> GM
+    BAR --> RM
+    BAR --> STM
+```
 
-- **多书并行**：每本书独立 state，共享 LLM 客户端与缓存
-- **增量导入**：新书加入时复用 prompt 与 pipeline
-- **偏好对生成**：同一 skeleton 用不同温度生成多版本，人工/规则打分构造 ORPO 数据
-- **风格迁移**：在导出阶段按风格标签筛选训练对
-- **Web 审阅界面**：把 review 队列可视化，支持在线修改后回写 state
+### 关键字段设计说明
 
----
+**`ChapterSummary`（章节摘要）**
 
-## 12. 里程碑建议
+这是整个系统信息密度最高的模型，约 30 个字段。设计原则：
 
-| 阶段 | 目标 | 交付 |
+- **P0 字段**（`plot_node_list`、`character_list`、`foreshadowing_set` 等）：LLM 扫描时必须生成，默认空列表
+- **P1 字段**（`sentence_pattern_features`）：可选，LLM 可以填也可以不填
+- **P2 字段**（`paragraph_function_tags`、`key_dialogue_excerpt` 等）：实验性字段，默认 `null` 或 `[]`，不影响核心流程
+- **`training_sample`**：嵌套的 `TrainingSample` 模型，默认 `None`。字段全部存在于 schema 中（满足"字段必须存在"的要求），但由后续数据 pipeline 填充，扫描阶段不强制生成
+
+**`TrainingSample`（训练数据样本）**
+
+约 40 个字段，覆盖 5 类数据：
+
+| 字段组 | 示例字段 | 生成方 |
 |---|---|---|
-| M1 | 打通单章提取 | preprocess + extract + 单章 JSON 输出 |
-| M2 | 状态滚动 | StateManager + resume + snapshot |
-| M3 | 长章与一致性 | 分块合并 + 冲突检测 + review 队列 |
-| M4 | 导出与微调对接 | Exporter + ChatML/ORPO 格式 |
-| M5 | 质量与规模化 | 检索、并发、成本统计、抽检工具 |
+| 文本切分 | `chunk_id`、`chunk_text`、`segmentation_strategy` | 程序（orchestrator） |
+| 指令构造 | `instruction`、`instruction_type`、`output`、`messages` | LLM 或模板 |
+| 风格迁移 | `style_label`、`style_features`、`content_description` | LLM + 程序 |
+| DPO 偏好 | `chosen`、`rejected`、`preference_dimension` | 独立 pipeline |
+| Agent 轨迹 | `thought`、`action`、`step_index` | 独立 pipeline |
+
+本次改动只保证 schema 存在，不要求扫描阶段生成这些字段。
+
+**`TrainingDatasetMeta`（全书级训练数据元信息）**
+
+由 orchestrator 的 `_build_training_dataset_meta()` 汇总生成，只在 CLI 传 `--build-training-meta` 时才构造。汇总的是所有章节 `training_sample` 的统计信息（样本数、任务分布、模板覆盖率等）。
+
+### 12 个模块模型
+
+每个模块都有固定的 `module: Literal[...]` 字段，用来标识自己属于哪个维度。聚合时 LLM 输出 JSON，`parse_obj_as` 会校验 `module` 字段的值是否匹配，不匹配就报错——这是一个很好的防错机制。
+
+| 模块 | 模型 | 核心字段 |
+|---|---|---|
+| 题材与定位 | `GenreModule` | `genre_tags`（列表，不再是单值） |
+| 书名与简介 | `TitleModule` | `one_sentence_pitch` |
+| 世界观设定 | `WorldModule` | `story_core`、`core_theme` |
+| 人物图谱 | `CharacterModule` | `character_relationship_graph`（Dict，不是字符串） |
+| 主线与结构 | `StructureModule` | `antagonistic_force_escalation_path` |
+| 节奏与爽点 | `RhythmModule` | `selling_point_cycle_pattern`（结构化） |
+| 金手指 | `GimmickModule` | 不变 |
+| 开篇钩子 | `OpeningModule` | 不变 |
+| 伏笔与铺垫 | `ForeshadowModule` | `foreshadowing_master_table` |
+| 可迁移模式 | `PatternModule` | 不变 |
+| 文风与语言（新） | `StyleModule` | `narrative_pov`、`language_fingerprint` |
+| 综合评分（新） | `RatingModule` | `seven_dimension_rating`（7 维各 1-5 分） |
 
 ---
 
-**一句话总结**：这个 CLI 工具的核心是 **“预处理 → 逐章提取 → 状态滚动合并 → 导出”** 四段式流水线，用外部 `state.json` 弥补模型上下文不足，用章级 checkpoint 保证长任务可恢复，最终产出可直接用于 Qwen-27B SFT/ORPO 的高质量训练对。
+## 两个关键设计决策
+
+### 为什么章节扫描和模块聚合要分两阶段？
+
+如果让 LLM 一次读完全部章节，直接输出 12 个模块的分析，上下文会爆炸（几百章摘要轻松超过 100K token）。分成两阶段后：
+
+- 阶段一：每次调用只处理一章（几千 token），可以并发
+- 阶段二：每次调用处理全部摘要（约 5-20K token），也能并发
+
+两阶段的 LLM 调用互不依赖，总耗时约等于"最慢的那次调用"而不是"所有调用之和"。
+
+### 为什么 `MODULE_CLASS_MAP` 和 `AGGREGATE_PROMPT_MAP` 必须键数一致？
+
+阶段二遍历 `MODULE_CLASS_MAP.keys()` 来驱动聚合，每遍历一个键就去 `AGGREGATE_PROMPT_MAP[module_name]` 取提示词。如果 `MODULE_CLASS_MAP` 有 12 个键但 `AGGREGATE_PROMPT_MAP` 只有 10 个，多出来的 2 个键会触发 `KeyError`，整个阶段二崩溃。
+
+所以改模块数时，两个 map 必须同时更新。
+
+---
+
+## 文件布局（实际代码）
+
+```
+BookerNovelTool/
+├── novel_anls.py           # 编排器 + CLI 入口
+├── novel_anls_agent.py    # 智能体（LLM 调用 + 解析）
+├── novel_anls_pmt.py      # 所有提示词模板
+├── novel_anls_models.py   # 所有 Pydantic 数据模型
+├── openai.py              # LLM 客户端封装
+├── util.py                # 通用工具（render_prompt、ext_code_block 等）
+└── __main__.py            # CLI 入口，注册各子命令
+```
+
+运行方式：
+
+```bash
+# 基础用法：解析 EPUB，跑完整 12 模块分析
+python -m BookerNovelTool novel-anls my_book.epub
+
+# 限制只处理前 5 章（测试用）
+python -m BookerNovelTool novel-anls my_book.epub -mc 5
+
+# 启用训练数据元信息汇总
+python -m BookerNovelTool novel-anls my_book.epub --build-training-meta
+
+# 标注来源授权状态
+python -m BookerNovelTool novel-anls my_book.epub --license "CC-BY-4.0"
+```
+
+---
+
+## 一句话总结
+
+这个工具把"读一本书并做结构化分析"这个任务，拆成了**"几百次单章扫描 + 12 次全书聚合"**两个可并发的阶段，用 Pydantic 模型做数据契约，用提示词模板做 LLM 行为约束，最终产出一份包含 12 个分析维度和可选训练数据元信息的完整 JSON 报告。
