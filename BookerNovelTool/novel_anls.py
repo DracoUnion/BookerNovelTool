@@ -12,6 +12,7 @@ from tqdm import tqdm
 
 from .novel_anls_models import (
     BookAnalysisReport, BookMeta, Chapter, ChapterSummary,
+    TrainingDatasetMeta,
     MODULE_CLASS_MAP,
 )
 
@@ -193,15 +194,45 @@ class BookAnalyzerOrchestrator:
 
     def save_report(self, output_path: str = "book_analysis_report.json") -> None:
         """保存最终报告。"""
+        training_meta = None
+        if getattr(self.args, 'build_training_meta', False):
+            training_meta = self._build_training_dataset_meta()
         report = BookAnalysisReport(
             book_meta=self.book_meta,
             total_chapters=len(self.summaries),
             chapter_summaries=self.summaries,
             modules=self.report,
+            training_dataset_meta=training_meta,
         )
         with open(output_path, "w", encoding="utf-8") as file:
             json.dump(report.model_dump(mode="json"), file, ensure_ascii=False, indent=2)
         logger.info(f"💾 完整报告已保存至: {output_path}")
+
+    def _build_training_dataset_meta(self) -> TrainingDatasetMeta:
+        """汇总章节级 training_sample 生成全书级训练数据集元信息。"""
+        samples = [
+            s.training_sample for s in self.summaries if s.training_sample is not None
+        ]
+        task_counts: Dict[str, int] = {}
+        template_counts: Dict[str, int] = {}
+        for s in samples:
+            if s.instruction_type:
+                task_counts[s.instruction_type] = task_counts.get(s.instruction_type, 0) + 1
+            if s.prompt_template_id:
+                template_counts[s.prompt_template_id] = template_counts.get(s.prompt_template_id, 0) + 1
+        chunk_words = [s.chunk_word_count for s in samples if s.chunk_word_count]
+        return TrainingDatasetMeta(
+            dataset_name=self.book_meta.book_title,
+            dataset_version="v1",
+            total_samples=len(samples),
+            sample_count_by_task=task_counts,
+            chunk_count=len(samples),
+            avg_chunk_word_count=sum(chunk_words) / len(chunk_words) if chunk_words else None,
+            prompt_template_coverage=template_counts,
+            source_book_count=1,
+            license=getattr(self.args, 'license', None),
+            data_origin_pipeline="BookerNovelTool/v1",
+        )
 
     def run_full_pipeline(self, output_path: str) -> BookAnalysisReport:
         """全自动执行完整流程。"""
@@ -209,11 +240,15 @@ class BookAnalyzerOrchestrator:
         self._run_stage1()
         self._run_stage2()
         self.save_report(output_path)
+        training_meta = None
+        if getattr(self.args, 'build_training_meta', False):
+            training_meta = self._build_training_dataset_meta()
         return BookAnalysisReport(
             book_meta=self.book_meta,
             total_chapters=len(self.summaries),
             chapter_summaries=self.summaries,
             modules=self.report,
+            training_dataset_meta=training_meta,
         )
 
     def run(self) -> None:
@@ -248,4 +283,7 @@ def reg_subparser(subparsers):
     novel_anls_parser.add_argument("--book-title", default=None, help="书名")
     novel_anls_parser.add_argument("--author", default=None, help="作者名")
     novel_anls_parser.add_argument("--blurb", default=None, help="书籍简介")
+    novel_anls_parser.add_argument("--build-training-meta", action="store_true",
+        help="汇总章节级 training_sample 生成 training_dataset_meta")
+    novel_anls_parser.add_argument("--license", default=None, help="来源作品授权状态")
     novel_anls_parser.set_defaults(func=novel_anls)

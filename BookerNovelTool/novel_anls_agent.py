@@ -6,12 +6,14 @@ import logging
 
 from typing import List, Type
 
-from pydantic import BaseModel, parse_obj_as
+from pydantic import BaseModel, ValidationError, parse_obj_as
 
 from .novel_anls_models import (
     BookAnalysisReport, BookMeta, Chapter, ChapterSummary,
     MODULE_CLASS_MAP,
 )
+
+logger = logging.getLogger(__name__)
 
 from .novel_anls_pmt import (
     SCAN_PMT, AGGREGATE_PROMPT_MAP,
@@ -41,7 +43,20 @@ class NovelAnlsAgent:
         user_prompt = render_prompt(pmt, **ctx)
 
         def parse(raw):
-            return parse_obj_as(response_model, json.loads(ext_code_block(raw)))
+            data = json.loads(ext_code_block(raw))
+            try:
+                return parse_obj_as(response_model, data)
+            except ValidationError as e:
+                logger.warning(f"⚠️ 字段级解析警告：{[err['loc'] for err in e.errors()]}"
+                               f" 将失败字段置 None 重试")
+                for err in e.errors():
+                    loc = err["loc"]
+                    if not loc:
+                        continue
+                    top_key = loc[0]
+                    if isinstance(data, dict) and top_key in data and data[top_key] is not None:
+                        data[top_key] = None
+                return parse_obj_as(response_model, data)
 
         return self.llm.call_llm_retry(
             [
