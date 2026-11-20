@@ -43,6 +43,9 @@ dependencies = [
     "jieba",
 ]
 
+[project.optional-dependencies]
+gal = ["rich", "tiktoken"]
+
 [project.urls]
 Homepage = "https://github.com/DracoUnion/BookerNovelTool"
 

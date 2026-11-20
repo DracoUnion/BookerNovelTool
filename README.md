@@ -176,6 +176,45 @@ novel-tool comic book.txt -o game
 
 输出：`worldbook.json`（世界书）、`initial_state.json`（初始状态）、`final_state.json`（最终运行时状态）。
 
+### 小说解构与文字游戏运行时（gal-parse / gal-play）
+
+把一部小说（EPUB/纯文本）离线解构为结构化游戏资产包，再通过状态化运行时引擎，用 OpenAI API 驱动可交互的中文文字游戏。LLM 只负责生成叙事与抽取结构化信息，世界真实状态由 Python 侧状态机维护：
+
+```bash
+# 第一步：解构小说为资产包（worldbook.json / scenes.json / initial_state.json / manifest.json）
+novel-tool gal-parse book.epub -o game_assets
+
+# 第二步：进入交互式文字游戏运行时
+novel-tool gal-play game_assets -s save.json
+```
+
+建议加上 `-ST -TN` 关闭流式输出与思考模式，避免结构化 JSON 解析失败。
+
+`gal-parse` 可选参数：
+
+| 参数 | 说明 | 默认值 |
+| --- | --- | --- |
+| `input` | 小说文件路径（EPUB 或 UTF-8 纯文本） | 必填 |
+| `-o, --out` | 资产包输出目录 | 必填 |
+| `-c, --chapters` | 章节范围，如 `1-5` | 全部 |
+| `--max-chars` | 单章截断长度 | `12000` |
+| `--skip-existing` | source_hash 命中时跳过重复解析 | 关闭 |
+| `--concurrency` | 章节并发解析数 | `4` |
+| `--no-merge` | 跳过跨章实体合并（调试用） | 关闭 |
+
+`gal-play` 可选参数：
+
+| 参数 | 说明 | 默认值 |
+| --- | --- | --- |
+| `assets_dir` | `gal-parse` 产出的资产包目录 | 必填 |
+| `-s, --save` | 存档路径，不存在则新建，存在则读档继续 | `<assets_dir>/save.json` |
+| `--ui` | 界面模式 `plain`/`rich` | `plain` |
+| `--max-turns` | 自动跑 N 轮后退出（测试用） | 不限 |
+| `--script` | 脚本模式，逐行读取玩家输入（测试/回放） | 关闭 |
+| `--log` | 每轮 TurnResult 追加写入 JSONL | 关闭 |
+
+进入 REPL 后支持元命令：`/save`、`/load`、`/state`、`/quit`、`/help`。
+
 ## 常见问题
 
 ### 请求失败或认证错误

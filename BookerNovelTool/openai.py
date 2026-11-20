@@ -7,6 +7,9 @@ from typing import *
 from .util import *
 from openai.types.chat import *
 
+import json_repair
+from pydantic import BaseModel, parse_obj_as
+
 logging.getLogger("openai._base_client").setLevel(logging.CRITICAL)
 logging.getLogger("httpx").setLevel(logging.CRITICAL)
 logging.basicConfig(
@@ -185,6 +188,52 @@ class OpenAIClient:
                 raise
             except Exception as ex:
                 logger.debug(f'OpenAI retry {i+1}')
+                logger.debug(traceback.format_exc())
+                if i == retry - 1: raise ex
+
+    # ── 结构化输出 ──────────────────────────────────────────
+
+    def call_llm_structured(
+        self,
+        msgs,
+        model_name,
+        schema: Type[BaseModel],
+        *,
+        retry=10,
+        temp=None,
+        top_p=None,
+        frequency_penalty=None,
+        presence_penalty=None,
+        max_tokens=None,
+        extra_body=None,
+    ):
+        """结构化输出：按 JSON 文本调用后用 Pydantic schema 解析，失败重试。
+
+        兼容仅支持 response_format=json_object 的模型，避免对
+        beta.chat.completions.parse 的依赖；msgs 可为字符串或消息列表。
+        """
+        for i in range(retry):
+            try:
+                text = self.call_llm(
+                    msgs, model_name,
+                    temp=temp,
+                    top_p=top_p,
+                    frequency_penalty=frequency_penalty,
+                    presence_penalty=presence_penalty,
+                    max_tokens=max_tokens,
+                    extra_body=extra_body,
+                )
+                # 模型输出可能被 ```json ... ``` 包裹，优先提取代码块，否则直接修复解析
+                try:
+                    candidate = ext_code_block(text)
+                except AttributeError:
+                    candidate = text
+                data = json_repair.loads(candidate)
+                return parse_obj_as(schema, data)
+            except KeyboardInterrupt:
+                raise
+            except Exception as ex:
+                logger.debug(f'OpenAI structured retry {i+1}: {ex}')
                 logger.debug(traceback.format_exc())
                 if i == retry - 1: raise ex
 
