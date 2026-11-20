@@ -1,14 +1,15 @@
 # -*- coding: utf-8 -*-
 """Integration test: mock LLM calls, exercise orchestrators end-to-end."""
+import json
 import os
 import tempfile
 from argparse import Namespace
 from os import path
 
-from BookerNovelTool.comic import ComicOrchestrator
+from BookerNovelTool.comic import ComicAgent, ComicOrchestrator
 from BookerNovelTool.comic_models import (
-    GameCharacter, GameItem, GameLocation, GameScene, InitialGameState,
-    NovelGameAssets, SceneElement, Worldbook, WorldChange,
+    GameCharacter, GameItem, GameLocation, GameScene, GameState, InitialGameState,
+    NovelGameAssets, SceneElement, Worldbook, WorldChange, ValidationResult,
 )
 from BookerNovelTool.gts_fiction import GtsFictionOrchestrator
 from BookerNovelTool.util import write_text
@@ -195,9 +196,135 @@ def test_comic_extract_only():
     print('comic extract-only OK; files:', sorted(os.listdir(args.output)))
 
 
+# ── comic：硬规则裁判 ──────────────────────────────────────
+
+
+def test_comic_validate_change():
+    worldbook = Worldbook(
+        locations=[GameLocation(id='loc_001', name='房间', description='一间房间')],
+        characters=[GameCharacter(id='char_001', name='张三', role='主角', description='',
+                                  traits=[], relationships=[])],
+        items=[GameItem(id='item_001', name='钥匙', description='', location='loc_001')],
+        scenes=[], rules=[],
+    )
+    state = GameState(location='loc_001', inventory=['item_001'],
+                      present_characters=['char_001'], flags={})
+    illegal = '{"narration":"非法跳转","scene_change":"loc_999"}'
+    legal = '{"narration":"合法留在原地","scene_change":null}'
+
+    args = make_args(novel='/tmp/x.txt', output=tempfile.mkdtemp())
+    agent = ComicAgent(args)
+    calls = {'n': 0}
+
+    def fake_llm(ques, model_name, args_, parse_output=None):
+        calls['n'] += 1
+        raw = illegal if calls['n'] == 1 else legal
+        return parse_output(f'```json\n{raw}\n```')
+
+    agent.llm.ask_chatgpt_retry = fake_llm
+    vresults = iter([
+        ValidationResult(valid=False, reason='scene_change loc_999 不存在',
+                         fixes=['将 scene_change 改为 loc_001 或 null']),
+        ValidationResult(valid=True),
+    ])
+    agent.validate_change = lambda wb, st, ch: next(vresults)
+
+    change = agent.runtime_turn(worldbook, state, '', '', '测试输入')
+    assert change.scene_change is None, change
+    assert calls['n'] == 2, f'期望 LLM 被回填重写一次，实际调用 {calls["n"]} 次'
+    print('comic validate_change OK')
+
+
+# ── comic：--resume 可恢复运行时 ───────────────────────────
+
+
+def test_comic_resume():
+    work = tempfile.mkdtemp()
+    out = path.join(work, 'game')
+    os.makedirs(out, exist_ok=True)
+    assets = _make_comic_assets()
+    write_text(path.join(out, 'worldbook.json'),
+               json.dumps(assets.worldbook.model_dump(mode="json"), ensure_ascii=False))
+    write_text(path.join(out, 'initial_state.json'),
+               json.dumps(assets.initial_state.model_dump(mode="json"), ensure_ascii=False))
+    final_state = {
+        "location": "loc_002", "inventory": ["item_001"],
+        "present_characters": ["char_001"],
+        "relationships": {"char_002": 0.5},
+        "flags": {"met": True}, "rolling_summary": "已恢复测试", "turn": 7,
+    }
+    write_text(path.join(out, 'final_state.json'), json.dumps(final_state, ensure_ascii=False))
+    args = make_args(novel=path.join(work, 'novel.txt'), output=out, resume=True)
+    write_text(args.novel, 'x')
+    orc = ComicOrchestrator(args)
+    captured = {}
+    orc.step_run_game = lambda s, a: (captured.update(state=s), s)
+    orc.run()
+    s = captured['state']
+    assert s.location == 'loc_002', s
+    assert s.turn == 7, s
+    assert s.rolling_summary == '已恢复测试', s
+    assert s.relationships.get('char_002') == 0.5, s
+    print('comic resume OK')
+
+
+# ── comic：--approve-worldbook 资产审批 ────────────────────
+
+
+def test_comic_approve_worldbook_reject():
+    work = tempfile.mkdtemp()
+    novel = path.join(work, 'novel.txt')
+    write_text(novel, '张三走进房间。')
+    out = path.join(work, 'game')
+    args = make_args(novel=novel, output=out, approve_worldbook=True)
+    orc = ComicOrchestrator(args)
+    assets = _make_comic_assets()
+    orc.agent.extract_assets = lambda novel_text: assets
+    called = []
+    orc.step_run_game = lambda s, a: called.append(True)
+    import builtins
+    orig_input = builtins.input
+    builtins.input = lambda prompt='': 'n'
+    try:
+        orc.run()
+    finally:
+        builtins.input = orig_input
+    assert not called, 'approve-worldbook 拒绝后不应进入运行时'
+    assert path.isfile(path.join(out, 'worldbook.json'))
+    assert not path.isfile(path.join(out, 'final_state.json'))
+    print('comic approve-worldbook reject OK')
+
+
+def test_comic_approve_worldbook_accept():
+    work = tempfile.mkdtemp()
+    novel = path.join(work, 'novel.txt')
+    write_text(novel, '张三走进房间。')
+    out = path.join(work, 'game')
+    args = make_args(novel=novel, output=out, approve_worldbook=True)
+    orc = ComicOrchestrator(args)
+    assets = _make_comic_assets()
+    orc.agent.extract_assets = lambda novel_text: assets
+    orc.agent.runtime_turn = lambda *a, **k: WorldChange(narration='结束', game_over=True)
+    called = []
+    orc.step_run_game = lambda s, a: called.append(True)
+    import builtins
+    orig_input = builtins.input
+    builtins.input = lambda prompt='': 'y'
+    try:
+        orc.run()
+    finally:
+        builtins.input = orig_input
+    assert called, 'approve-worldbook 确认后应进入运行时'
+    print('comic approve-worldbook accept OK')
+
+
 if __name__ == '__main__':
     test_write_novel()
     test_gts_fiction()
     test_comic()
     test_comic_extract_only()
+    test_comic_validate_change()
+    test_comic_resume()
+    test_comic_approve_worldbook_reject()
+    test_comic_approve_worldbook_accept()
     print('ALL INTEGRATION TESTS PASSED')

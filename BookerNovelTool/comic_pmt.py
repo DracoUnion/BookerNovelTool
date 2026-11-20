@@ -105,6 +105,12 @@ RUNTIME_PMT = '''
 {player_input}
 [/content]
 
+## 上一回合校验反馈（如有）
+
+[content]
+{validation_feedback}
+[/content]
+
 ## 规则
 
 1. 保持世界基调与角色既定特质一致；角色只知道他“可能知道”的事。
@@ -149,4 +155,50 @@ SUMMARIZE_PMT = '''
 1. 摘要限 1-3 句话，客观记录事实，不加演技。
 2. 保留地点、背包、关键关系与剧情标志的变化。
 3. 最终仅输出 "[content] 摘要文本 [/content]"，不要输出其他内容。
+'''
+
+
+# ──── 阶段二：在线运行时——硬规则裁判 ────
+
+
+VALIDATE_CHANGE_PMT = '''
+你是一位文字游戏世界的“规则裁判”。你的任务是校验本回合 LLM 输出的世界变更指令（WorldChange）是否符合世界书的硬规则，仅输出 JSON，包含在三个反引号（```）中。
+
+## 世界书（硬规则来源）
+
+[content]
+{worldbook}
+[/content]
+
+## 当前游戏状态
+
+[content]
+{state}
+[/content]
+
+## 本回合 LLM 输出的变更指令
+
+[content]
+{change}
+[/content]
+
+## 裁判规则
+
+1. `scene_change` 若非 null，必须是世界书 `locations` 中存在的地点 ID；否则判无效。
+2. `inventory_delta.remove` 中的物品 ID 必须全部存在于当前背包 `state.inventory` 中；否则判无效。
+3. `inventory_delta.add` 中的物品 ID 应来自世界书 `items`；若出现世界书中未定义的物品，判无效。
+4. `relationship_delta` 的键必须全部是世界书 `characters` 中存在的角色 ID；否则判无效。
+5. 关系值增量应在合理范围内（建议 [-1, 1]）；异常大的增量需说明。
+6. `game_over = true` 时，`narration` 必须给出故事终点的合理理由。
+7. 若全部规则通过，输出 {{"valid": true}}；否则输出 {{"valid": false, "reason": "...", "fixes": [...]}}。
+
+## 输出格式
+
+```
+{{
+  "valid": true或false,
+  "reason": "失败原因或null",
+  "fixes": ["修复要点1", "修复要点2"]或null
+}}
+```
 '''

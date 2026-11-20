@@ -1,17 +1,23 @@
 import json
 import logging
 import os
+from datetime import datetime, timezone
 from os import path
-from typing import List
+from typing import List, Optional
 
 from .comic_agent import ComicAgent
-from .comic_models import GameState, InitialGameState, NovelGameAssets, WorldChange, Worldbook
+from .comic_models import (
+    GameState, InitialGameState, NovelGameAssets, WorldChange, Worldbook,
+)
 from .util import read_text, write_text
 
 logger = logging.getLogger(__name__)
 
 RECENT_TURNS = 5
 SUMMARY_EVERY = 5
+
+_STATE_MARKER_FILE = 'comic-state.json'
+_FINAL_STATE_FILE = 'final_state.json'
 
 
 class ComicOrchestrator:
@@ -55,7 +61,73 @@ class ComicOrchestrator:
             f'  角色数：{len(assets.worldbook.characters)}，地点数：{len(assets.worldbook.locations)}，'
             f'物品数：{len(assets.worldbook.items)}，场景数：{len(assets.worldbook.scenes)}'
         )
+        self._write_state_marker('extracted', detail='worldbook 抽取完成')
         return assets
+
+    def _write_state_marker(self, phase: str, detail: Optional[str] = None, turn: Optional[int] = None) -> None:
+        """写入运行时阶段标记 comic-state.json，供 --resume 与审核锁使用。"""
+        marker = {
+            'phase': phase,
+            'detail': detail,
+            'turn': turn,
+            'updated_at': datetime.now(timezone.utc).isoformat(),
+        }
+        write_text(path.join(self.output_dir, _STATE_MARKER_FILE), json.dumps(marker, ensure_ascii=False, indent=2))
+
+    def _read_state_marker(self) -> Optional[dict]:
+        """读取运行时阶段标记；缺失时返回 None。"""
+        text = read_text(path.join(self.output_dir, _STATE_MARKER_FILE))
+        if not text:
+            return None
+        try:
+            return json.loads(text)
+        except json.JSONDecodeError:
+            return None
+
+    def _load_assets_for_resume(self) -> NovelGameAssets:
+        """--resume 用：从已保存的 worldbook.json / initial_state.json 组装资产。"""
+        worldbook_fname = path.join(self.output_dir, 'worldbook.json')
+        state_fname = path.join(self.output_dir, 'initial_state.json')
+        worldbook_text = read_text(worldbook_fname)
+        state_text = read_text(state_fname)
+        if not worldbook_text or not state_text:
+            logger.fatal('--resume 要求已存在 worldbook.json 与 initial_state.json')
+            raise FileNotFoundError('缺少恢复运行时所需的资产文件')
+        worldbook = Worldbook(**json.loads(worldbook_text))
+        initial_state = InitialGameState(**json.loads(state_text))
+        return NovelGameAssets(worldbook=worldbook, initial_state=initial_state)
+
+    def _confirm_worldbook(self) -> bool:
+        """--approve-worldbook 用：打印世界书摘要，交互式询问用户是否确认进入运行时。"""
+        wb = self._read_worldbook_summary()
+        print('\n=== 世界书已抽取，请审核后再进入运行时 ===')
+        print(f'  世界书文件：{path.join(self.output_dir, "worldbook.json")}')
+        print(f'  初始状态文件：{path.join(self.output_dir, "initial_state.json")}')
+        print(f'  角色数：{wb["characters"]}，地点数：{wb["locations"]}，物品数：{wb["items"]}，场景数：{wb["scenes"]}，规则数：{wb["rules"]}')
+        print('  请检查上述文件内容，确认无误后再进入游戏运行时。')
+        try:
+            ans = input('是否确认 worldbook 并进入运行时？(y/n): ').strip().lower()
+        except (EOFError, KeyboardInterrupt):
+            print()
+            return False
+        return ans == 'y'
+
+    def _read_worldbook_summary(self) -> dict:
+        """读取 worldbook.json 的统计摘要（供 _confirm_worldbook 使用）。"""
+        try:
+            text = read_text(path.join(self.output_dir, 'worldbook.json'))
+            if not text:
+                return {'characters': 0, 'locations': 0, 'items': 0, 'scenes': 0, 'rules': 0}
+            data = json.loads(text)
+            return {
+                'characters': len(data.get('characters', [])),
+                'locations': len(data.get('locations', [])),
+                'items': len(data.get('items', [])),
+                'scenes': len(data.get('scenes', [])),
+                'rules': len(data.get('rules', [])),
+            }
+        except (json.JSONDecodeError, AttributeError):
+            return {'characters': 0, 'locations': 0, 'items': 0, 'scenes': 0, 'rules': 0}
 
     # ── 步骤 3：保存资产 ──────────────────────────────────
 
@@ -68,14 +140,24 @@ class ComicOrchestrator:
 
     # ── 步骤 4：初始化运行时状态 ───────────────────────────
 
-    def step_init_state(self, assets: NovelGameAssets) -> GameState:
-        state = GameState(
-            location=assets.initial_state.location,
-            inventory=list(assets.initial_state.inventory),
-            present_characters=list(assets.initial_state.present_characters),
-            flags=dict(assets.initial_state.flags),
-        )
-        logger.info(f'▶ 起始地点：{state.location}')
+    def step_init_state(self, assets: NovelGameAssets, resume: bool = False) -> GameState:
+        if resume:
+            final_fname = path.join(self.output_dir, _FINAL_STATE_FILE)
+            text = read_text(final_fname)
+            if not text:
+                logger.fatal('--resume 要求已存在 final_state.json')
+                raise FileNotFoundError(final_fname)
+            state = GameState(**json.loads(text))
+            logger.info(f'🔄 恢复运行时状态：地点={state.location}，回合={state.turn}')
+        else:
+            state = GameState(
+                location=assets.initial_state.location,
+                inventory=list(assets.initial_state.inventory),
+                present_characters=list(assets.initial_state.present_characters),
+                flags=dict(assets.initial_state.flags),
+            )
+            logger.info(f'▶ 起始地点：{state.location}')
+        self._write_state_marker('state_initialized', detail='运行时状态已初始化', turn=state.turn)
         return state
 
     # ── 状态变更（Python 侧显式应用，LLM 不直接改状态）─────
@@ -101,6 +183,7 @@ class ComicOrchestrator:
 
     def step_run_game(self, state: GameState, assets: NovelGameAssets) -> GameState:
         logger.info('🎮 步骤五：进入运行时游戏循环（输入 quit/exit 结束）')
+        self._write_state_marker('running', detail='进入游戏运行时循环', turn=state.turn)
         recent_history: List[str] = []
         while True:
             try:
@@ -140,17 +223,37 @@ class ComicOrchestrator:
         final_fname = path.join(self.output_dir, 'final_state.json')
         write_text(final_fname, json.dumps(state.model_dump(mode="json"), ensure_ascii=False, indent=2))
         logger.info(f'💾 最终状态已保存：{final_fname}')
+        self._write_state_marker('finished', detail='运行时结束', turn=state.turn)
         return state
 
     # ── 主流程 ──────────────────────────────────────────────
 
     def run(self) -> None:
+        # --resume：检测到已有最终状态，恢复运行时并继续
+        if getattr(self.args, 'resume', False) and path.isfile(
+            path.join(self.output_dir, _FINAL_STATE_FILE)
+        ):
+            logger.info('🔄 --resume：检测到已有最终状态，将恢复运行时')
+            assets = self._load_assets_for_resume()
+            state = self.step_init_state(assets, resume=True)
+            self.step_run_game(state, assets)
+            logger.info('[*] comic 已完成')
+            return
+
         novel_text = self.step_load_novel()
         assets = self.step_extract_assets(novel_text)
         self.step_save_assets(assets)
+
         if getattr(self.args, 'extract_only', False):
             logger.info('⏭ --extract-only，停止于资产抽取')
             return
+
+        # --approve-worldbook：抽取完成后暂停，等待人工确认世界书
+        if getattr(self.args, 'approve_worldbook', False):
+            if not self._confirm_worldbook():
+                logger.info('⏭ 用户未确认 worldbook，停止于资产抽取阶段')
+                return
+
         state = self.step_init_state(assets)
         self.step_run_game(state, assets)
         logger.info('[*] comic 已完成')
@@ -172,4 +275,8 @@ def reg_subparser(subparsers):
                         help="输出目录（默认 <小说所在目录>/<书名>_game）")
     parser.add_argument("--extract-only", action="store_true",
                         help="仅执行离线资产抽取，不进入游戏运行时")
+    parser.add_argument("--approve-worldbook", action="store_true",
+                        help="抽取世界书后暂停，等待人工确认再进入运行时")
+    parser.add_argument("--resume", action="store_true",
+                        help="从已保存的 final_state.json 恢复运行时并继续")
     parser.set_defaults(func=comic)

@@ -103,3 +103,11 @@ class WorldChange(BaseModel):
     relationship_delta: Optional[Dict[str, float]] = Field(None, description="关系值变更，{角色 ID: 增量}")
     flags_delta: Optional[Dict[str, Any]] = Field(None, description="标志位变更")
     game_over: bool = Field(default=False, description="是否结束游戏")
+
+
+class ValidationResult(BaseModel):
+    """硬规则裁判结果：判定 LLM 输出的 WorldChange 是否符合世界书硬规则。"""
+
+    valid: bool = Field(..., description="是否通过硬规则校验")
+    reason: Optional[str] = Field(None, description="未通过时的失败原因")
+    fixes: Optional[List[str]] = Field(None, description="需要 LLM 修复的要点")
