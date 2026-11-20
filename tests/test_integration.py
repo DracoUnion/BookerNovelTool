@@ -3,6 +3,15 @@
 import os
 import tempfile
 from argparse import Namespace
+from os import path
+
+from BookerNovelTool.comic import ComicOrchestrator
+from BookerNovelTool.comic_models import (
+    GameCharacter, GameItem, GameLocation, GameScene, InitialGameState,
+    NovelGameAssets, SceneElement, Worldbook, WorldChange,
+)
+from BookerNovelTool.gts_fiction import GtsFictionOrchestrator
+from BookerNovelTool.util import write_text
 
 from BookerNovelTool.write_novel import WriteNovelOrchestrator
 from BookerNovelTool.write_novel_models import (
@@ -10,7 +19,6 @@ from BookerNovelTool.write_novel_models import (
     VolumeOutlineItem, ChapterOutlineItem, CharacterState,
     ConsistencyReviewResult,
 )
-from BookerNovelTool.gts_fiction import GtsFictionOrchestrator
 
 # ── 构造 args（保持与 __main__ 全局参数一致）────────────
 def make_args(**over):
@@ -99,7 +107,97 @@ def test_gts_fiction():
     assert '润色：' in open(os.path.join(args.out_dir, '润色正文1.md'), encoding='utf8').read()
     print('gts-fiction OK; files:', sorted(os.listdir(args.out_dir)))
 
+# ── comic：mock LLM，跑通离线抽取 + 运行时一回合 ──────────
+
+
+def _make_comic_assets() -> NovelGameAssets:
+    return NovelGameAssets(
+        worldbook=Worldbook(
+            characters=[
+                GameCharacter(id='char_001', name='张三', role='主角', description='年轻人',
+                              traits=[], relationships=[]),
+                GameCharacter(id='char_002', name='李四', role='配角', description='老友',
+                              traits=[], relationships=[]),
+            ],
+            locations=[
+                GameLocation(id='loc_001', name='房间', description='一间普通房间'),
+            ],
+            items=[
+                GameItem(id='item_001', name='钥匙', description='一把旧钥匙', location='loc_001'),
+            ],
+            scenes=[
+                GameScene(
+                    scene_number=1, location='loc_001',
+                    characters_present=['char_001', 'char_002'],
+                    elements=[SceneElement(type='action', content='张三走进房间。')],
+                ),
+            ],
+            rules=[],
+        ),
+        initial_state=InitialGameState(
+            location='loc_001', inventory=[], present_characters=['char_001'], flags={},
+        ),
+    )
+
+
+def test_comic():
+    work = tempfile.mkdtemp()
+    novel = path.join(work, 'novel.txt')
+    write_text(novel, '张三走进房间，看到李四坐在桌前。“你来了，”李四说。')
+    args = make_args(novel=novel, output=path.join(work, 'game'))
+
+    orc = ComicOrchestrator(args)
+    assets = _make_comic_assets()
+    orc.agent.extract_assets = lambda novel_text: assets
+    orc.agent.runtime_turn = lambda *a, **k: WorldChange(
+        narration='李四抬头看向你，微微一笑。', game_over=True,
+    )
+
+    inputs = iter(['环顾四周', 'quit'])
+    import builtins
+    orig_input = builtins.input
+    builtins.input = lambda prompt='': next(inputs)
+    try:
+        orc.run()
+    finally:
+        builtins.input = orig_input
+
+    assert os.path.isfile(path.join(args.output, 'worldbook.json'))
+    assert os.path.isfile(path.join(args.output, 'initial_state.json'))
+    assert os.path.isfile(path.join(args.output, 'final_state.json'))
+    print('comic OK; files:', sorted(os.listdir(args.output)))
+
+
+def test_comic_extract_only():
+    work = tempfile.mkdtemp()
+    novel = path.join(work, 'novel.txt')
+    write_text(novel, '张三走进房间。')
+    args = make_args(novel=novel, output=path.join(work, 'game'), extract_only=True)
+
+    orc = ComicOrchestrator(args)
+    assets = _make_comic_assets()
+    orc.agent.extract_assets = lambda novel_text: assets
+    called = []
+
+    def _should_not_be_called(*a, **k):
+        called.append(True)
+        raise AssertionError('extract-only 模式不应调用运行时')
+
+    orc.agent.runtime_turn = _should_not_be_called
+    orc.agent.summarize_history = _should_not_be_called
+
+    orc.run()
+
+    assert not called, 'extract-only 模式不应进入运行时循环'
+    assert os.path.isfile(path.join(args.output, 'worldbook.json'))
+    assert os.path.isfile(path.join(args.output, 'initial_state.json'))
+    assert not os.path.isfile(path.join(args.output, 'final_state.json'))
+    print('comic extract-only OK; files:', sorted(os.listdir(args.output)))
+
+
 if __name__ == '__main__':
     test_write_novel()
     test_gts_fiction()
+    test_comic()
+    test_comic_extract_only()
     print('ALL INTEGRATION TESTS PASSED')

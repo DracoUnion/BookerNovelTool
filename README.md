@@ -156,6 +156,26 @@ novel-tool metrics chapters/ --budget 500
 
 说明：新增依赖 `numpy`、`jieba`；`hanlp`、`gensim`、`networkx`、`pypinyin`、`sentence-transformers` 为可选增强，缺失时相关指标自动降级并在报告中标记。
 
+### 小说转文字游戏（comic）
+
+把一本小说转化为可玩的状态化文字游戏：先离线解构出世界书（角色、地点、物品、规则）与初始状态，再进入对话式运行时，玩家输入行动，LLM 以角色口吻叙事，Python 侧严格维护世界状态（位置、背包、关系、标志）：
+
+```bash
+novel-tool comic book.txt -o game
+```
+
+建议加上 `-ST -TN` 关闭流式输出与思考模式，避免 LLM 返回空 content 导致 JSON 解析失败。
+
+可选参数：
+
+| 参数 | 说明 | 默认值 |
+| --- | --- | --- |
+| `novel` | 小说文本文件路径（UTF-8） | 必填 |
+| `-o, --output` | 输出目录 | `<小说所在目录>/<书名>_game` |
+| `--extract-only` | 仅执行离线资产抽取，不进入游戏运行时 | 关闭 |
+
+输出：`worldbook.json`（世界书）、`initial_state.json`（初始状态）、`final_state.json`（最终运行时状态）。
+
 ## 常见问题
 
 ### 请求失败或认证错误
@@ -175,6 +195,7 @@ novel-tool write-novel -h
 novel-tool gts-fiction -h
 novel-tool novel-anls -h
 novel-tool metrics -h
+novel-tool comic -h
 ```
 
 ## 开发

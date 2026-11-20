@@ -3,7 +3,7 @@ import sys
 import os
 from . import __version__
 from . import (
-    gts_fiction, novel_anls, write_novel, cross_anls,
+    gts_fiction, novel_anls, write_novel, cross_anls, comic,
 )
 from .metrics import tool as metrics_tool
 
@@ -46,6 +46,7 @@ def main():
     novel_anls.reg_subparser(subparsers)
     write_novel.reg_subparser(subparsers)
     cross_anls.reg_subparser(subparsers)
+    comic.reg_subparser(subparsers)
     metrics_tool.reg_subparser(subparsers)
 
     args = parser.parse_args()
