@@ -7,6 +7,7 @@ import tempfile
 from argparse import Namespace
 from os import path
 
+from BookerNovelTool.gal_agent import GalAgent
 from BookerNovelTool.gal_engine import GameEngine
 from BookerNovelTool.gal_models import (
     AssetsBundle, CharacterCard, GameState, Location, SaveFile, Scene,
@@ -24,6 +25,7 @@ def make_args(**over):
         max_tokens=None, extra_body=None, stream=False,
         user_agent='test', conn_timeout=60, read_timeout=120,
         repetition_regex='', no_think=False,
+        input='/tmp/x.txt', out=None,
     )
     for k, v in over.items():
         setattr(args, k, v)
@@ -344,6 +346,221 @@ def test_subcommands_registered():
     assert ns.func == gal_parse
     ns, _ = parser.parse_known_args(['gal-play', 'assets'])
     assert ns.func == gal_play
+
+
+# ── 章节 splitter 丰富 ───────────────────────────────────────
+
+def test_splitter_markdown_and_numbered():
+    from BookerNovelTool.gal_parse import _split_text_into_chapters
+    text = '# 第一章\n张三说：“你好”。\n\n## 第二章\n李四回答：“哦”。\n\n13. 第三章\n王五登场。'
+    chapters = _split_text_into_chapters(text)
+    titles = [c.title for c in chapters]
+    assert '第一章' in titles, titles
+    assert '第二章' in titles, titles
+    assert '13. 第三章' in titles, titles
+    assert len(chapters) == 3, len(chapters)
+
+
+def test_splitter_bracket_numbered():
+    from BookerNovelTool.gal_parse import _split_text_into_chapters
+    text = '[(1)] 开篇序幕。\n内容一。\n\n[2] 第二节。\n内容二。'
+    chapters = _split_text_into_chapters(text)
+    titles = [c.title for c in chapters]
+    assert '开篇序幕。' in titles, titles
+    assert '第二节。' in titles, titles
+    assert len(chapters) == 2, chapters
+
+
+# ── 资产包验收（--validate）──────────────────────────────────
+
+def _make_bundle(tmp_path, valid=True):
+    chars = [CharacterCard(id='char_001', name='张三', role='protagonist',
+                           description='年轻人', traits=[], voice='"你好"',
+                           knowledge_scope=['日常'], relationships=[])]
+    locs = [Location(id='loc_001', name='房间', description='一间房',
+                     connections=[], items=['钥匙'])]
+    if valid:
+        scenes = [
+            Scene(scene_number=i, chapter=1, location_id='loc_001',
+                  characters_present=['char_001'],
+                  elements=[SceneElement(type='dialogue', content=f'台词{i}',
+                                         speaker_id='char_001', emotion=None)],
+                  is_flashback=False)
+            for i in range(1, 5)
+        ]
+        st = GameState(player_location='loc_001', inventory=[], flags={},
+                       relationships={}, turn=0, rolling_summary='',
+                       present_characters=['char_001'], game_over=False)
+    else:
+        # 非法：引用不存在地点 + 对话缺 speaker_id
+        scenes = [Scene(scene_number=1, chapter=1, location_id='loc_999',
+                        characters_present=['char_001'],
+                        elements=[SceneElement(type='dialogue', content='"你好"',
+                                               speaker_id=None, emotion=None)],
+                        is_flashback=False)]
+        st = GameState(player_location='loc_999', inventory=['不存在的物品'], flags={},
+                       relationships={}, turn=0, rolling_summary='',
+                       present_characters=[], game_over=False)
+    wb = WorldBook(title='测试书', source_hash='h',
+                   characters=chars, locations=locs,
+                   rules=['此门需钥匙'], factions=[])
+    return AssetsBundle(worldbook=wb, scenes=scenes, initial_state=st)
+
+
+def test_validate_assets_pass(tmp_path):
+    args = make_args(out=str(tmp_path))
+    orc = GalParseOrchestrator(args)
+    bundle = _make_bundle(tmp_path, valid=True)
+    assert orc.step_validate_assets(bundle) is True
+
+
+def test_validate_assets_fail(tmp_path):
+    args = make_args(out=str(tmp_path))
+    orc = GalParseOrchestrator(args)
+    bundle = _make_bundle(tmp_path, valid=False)
+    assert orc.step_validate_assets(bundle) is False
+
+
+# ── 审批门禁（--approve-worldbook）───────────────────────────
+
+def test_approve_worldbook_accept(tmp_path):
+    import builtins
+    novel = path.join(tmp_path, 'novel.txt')
+    write_text(novel, '第一章\n内容。')
+    out = path.join(tmp_path, 'assets')
+    os.makedirs(out, exist_ok=True)
+    args = make_args(input=novel, out=out, chapters=None, max_chars=12000,
+                     concurrency=2, skip_existing=False, no_merge=False,
+                     approve_worldbook=True)
+    orc = GalParseOrchestrator(args)
+
+    chars = [CharacterCard(id='char_001', name='张三', role='protagonist',
+                           description='年轻人', traits=[], voice='"你好"',
+                           knowledge_scope=['日常'], relationships=[])]
+    scenes = [Scene(scene_number=1, chapter=1, location_id='loc_001',
+                    characters_present=['char_001'],
+                    elements=[SceneElement(type='dialogue', content='"你好"',
+                                           speaker_id='char_001', emotion=None)],
+                    is_flashback=False)]
+    locs = [Location(id='loc_001', name='房间', description='一间房',
+                     connections=[], items=[])]
+    orc.agent.extract_characters = lambda text, idx: chars
+    orc.agent.extract_scenes = lambda text, idx: scenes
+    orc.agent.extract_locations = lambda text, idx: locs
+    merged = WorldBook(title='测试书', source_hash='x',
+                       characters=chars, locations=locs, rules=['r'], factions=[])
+    orc.agent.merge_entities = lambda full_text, cc, cl: merged
+
+    orig_input = builtins.input
+    builtins.input = lambda prompt='': 'y'
+    try:
+        orc.run()
+    finally:
+        builtins.input = orig_input
+    assert path.isfile(path.join(out, 'worldbook.json'))
+    assert path.isfile(path.join(out, 'scenes.json'))
+
+
+def test_approve_worldbook_reject(tmp_path):
+    import builtins
+    novel = path.join(tmp_path, 'novel.txt')
+    write_text(novel, '第一章\n内容。')
+    out = path.join(tmp_path, 'assets')
+    os.makedirs(out, exist_ok=True)
+    args = make_args(input=novel, out=out, chapters=None, max_chars=12000,
+                     concurrency=2, skip_existing=False, no_merge=False,
+                     approve_worldbook=True)
+    orc = GalParseOrchestrator(args)
+
+    chars = [CharacterCard(id='char_001', name='张三', role='protagonist',
+                           description='年轻人', traits=[], voice='"你好"',
+                           knowledge_scope=['日常'], relationships=[])]
+    scenes = [Scene(scene_number=1, chapter=1, location_id='loc_001',
+                    characters_present=['char_001'],
+                    elements=[SceneElement(type='dialogue', content='"你好"',
+                                           speaker_id='char_001', emotion=None)],
+                    is_flashback=False)]
+    locs = [Location(id='loc_001', name='房间', description='一间房',
+                     connections=[], items=[])]
+    orc.agent.extract_characters = lambda text, idx: chars
+    orc.agent.extract_scenes = lambda text, idx: scenes
+    orc.agent.extract_locations = lambda text, idx: locs
+    merged = WorldBook(title='测试书', source_hash='x',
+                       characters=chars, locations=locs, rules=['r'], factions=[])
+    orc.agent.merge_entities = lambda full_text, cc, cl: merged
+
+    orig_input = builtins.input
+    builtins.input = lambda prompt='': 'n'
+    try:
+        orc.run()
+    finally:
+        builtins.input = orig_input
+    # 仅保留 worldbook.json，不保存 scenes/initial_state/manifest
+    assert path.isfile(path.join(out, 'worldbook.json'))
+    assert not path.isfile(path.join(out, 'scenes.json'))
+
+
+# ── gal_tools 工具循环 ───────────────────────────────────────
+
+def test_gal_tools_validate(tmp_path):
+    from BookerNovelTool.gal_tools import GalTools
+    args = make_args(out=str(tmp_path))
+    agent = GalAgent(args)
+    tools = GalTools(agent)
+
+    # 写入一个合法资产包目录
+    chars = [CharacterCard(id='char_001', name='张三', role='protagonist',
+                           description='年轻人', traits=[], voice='"你好"',
+                           knowledge_scope=['日常'], relationships=[])]
+    locs = [Location(id='loc_001', name='房间', description='一间房',
+                     connections=[], items=['钥匙'])]
+    scenes = [Scene(scene_number=i, chapter=1, location_id='loc_001',
+                    characters_present=['char_001'],
+                    elements=[SceneElement(type='dialogue', content=f'台词{i}',
+                                           speaker_id='char_001', emotion=None)],
+                    is_flashback=False) for i in range(1, 5)]
+    wb = WorldBook(title='测试书', source_hash='h',
+                   characters=chars, locations=locs,
+                   rules=['此门需钥匙'], factions=[])
+    st = GameState(player_location='loc_001', inventory=[], flags={},
+                   relationships={}, turn=0, rolling_summary='',
+                   present_characters=['char_001'], game_over=False)
+    bundle = AssetsBundle(worldbook=wb, scenes=scenes, initial_state=st)
+    write_text(path.join(tmp_path, 'worldbook.json'),
+               json.dumps(wb.model_dump(mode="json"), ensure_ascii=False))
+    write_text(path.join(tmp_path, 'scenes.json'),
+               json.dumps([s.model_dump(mode="json") for s in scenes], ensure_ascii=False))
+    write_text(path.join(tmp_path, 'initial_state.json'),
+               json.dumps(st.model_dump(mode="json"), ensure_ascii=False))
+    write_text(path.join(tmp_path, 'manifest.json'),
+               json.dumps({'source_hash': 'h'}, ensure_ascii=False))
+
+    result = tools.tool_validate_assets(str(tmp_path))
+    assert result['valid'] is True, result
+
+
+def test_gal_tools_export_save(tmp_path):
+    from BookerNovelTool.gal_tools import GalTools
+    args = make_args(out=str(tmp_path))
+    agent = GalAgent(args)
+    tools = GalTools(agent)
+
+    save_path = path.join(tmp_path, 'save.json')
+    result = tools.tool_export_save(
+        save_path=save_path,
+        state_json=json.dumps(GameState(player_location='loc_001', inventory=[], flags={},
+                                        relationships={}, turn=3,
+                                        rolling_summary='', present_characters=[],
+                                        game_over=False).model_dump(mode="json")),
+        history_json='["玩家：hello"]',
+        assets_hash='h',
+    )
+    assert result['exported'] is True
+    assert result['turn'] == 3
+    assert path.isfile(save_path)
+    loaded = json.loads(read_text(save_path))
+    assert loaded['assets_hash'] == 'h'
+    assert loaded['history_window'] == ['玩家：hello']
 
 
 if __name__ == '__main__':

@@ -201,6 +201,8 @@ novel-tool gal-play game_assets -s save.json
 | `--skip-existing` | source_hash 命中时跳过重复解析 | 关闭 |
 | `--concurrency` | 章节并发解析数 | `4` |
 | `--no-merge` | 跳过跨章实体合并（调试用） | 关闭 |
+| `--validate` | 保存前对资产包做约 13 项确定性验收，失败退出非零码 | 关闭 |
+| `--approve-worldbook` | worldbook 生成后暂停，等待人工确认再保存完整资产包 | 关闭 |
 
 `gal-play` 可选参数：
 

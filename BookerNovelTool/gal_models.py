@@ -117,6 +117,14 @@ class AssetsBundle(BaseModel):
     initial_state: GameState = Field(..., description="初始游戏状态")
 
 
+class ValidationResult(BaseModel):
+    """硬规则裁判结果：判定 LLM 输出的 TurnResult / WorldChange 是否符合世界书硬规则。"""
+
+    valid: bool = Field(..., description="是否通过硬规则校验")
+    reason: Optional[str] = Field(None, description="未通过时的失败原因")
+    fixes: Optional[List[str]] = Field(None, description="需要 LLM 修复的要点")
+
+
 class SaveFile(BaseModel):
     """存档文件：运行时状态 + 最近历史窗口 + 资产包版本校验。"""
 

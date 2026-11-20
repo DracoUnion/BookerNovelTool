@@ -12,6 +12,7 @@ from pydantic import BaseModel, Field, parse_obj_as
 
 from .gal_models import (
     AssetsBundle, CharacterCard, GameState, Location, Scene, SummaryResult, TurnResult, WorldBook,
+    ValidationResult,
 )
 from .gal_pmt import (
     PMT_EXTRACT_CHARACTERS,
@@ -20,6 +21,7 @@ from .gal_pmt import (
     PMT_MERGE_ENTITIES,
     PMT_RUNTIME_DIRECTOR,
     PMT_RUNTIME_SUMMARY,
+    PMT_VALIDATE_CHANGE,
 )
 from .openai import OpenAIClient
 from .util import (
@@ -51,6 +53,12 @@ class _WorldBookOut(BaseModel):
     locations: List[Location] = Field(default_factory=list, description="合并后的地点")
     rules: List[str] = Field(default_factory=list, description="世界硬规则")
     factions: List[str] = Field(default_factory=list, description="势力")
+
+
+class _ValidationOut(BaseModel):
+    valid: bool = Field(..., description="是否通过硬规则校验")
+    reason: Optional[str] = Field(None, description="未通过时的失败原因")
+    fixes: Optional[List[str]] = Field(None, description="需要 LLM 修复的要点")
 
 
 class GalAgent:
@@ -192,6 +200,31 @@ class GalAgent:
             TurnResult,
             retry=getattr(self.args, 'retry', 3),
             temp=temperature if temperature is not None else getattr(self.args, 'temp', 0.7),
+        )
+
+    def validate_turn_result(
+        self,
+        worldbook: WorldBook,
+        state: GameState,
+        change: TurnResult,
+    ) -> ValidationResult:
+        """硬规则裁判（PMT_VALIDATE_CHANGE，温度 0.1，不缓存）。
+
+        输入 worldbook/state/change，返回 ValidationResult，供运行时
+        校验回填使用（补充 GameEngine.apply() 的 Python 侧硬校验）。
+        """
+        ques = render_prompt(
+            PMT_VALIDATE_CHANGE,
+            worldbook=json_dump_model(worldbook),
+            state=json_dump_model(state),
+            change=json_dump_model(change),
+        )
+        return self.llm.call_llm_structured(
+            ques,
+            self.model,
+            ValidationResult,
+            retry=getattr(self.args, 'retry', 3),
+            temp=0.1,
         )
 
     def summarize_history(self, rolling_summary: str, history: str) -> SummaryResult:

@@ -4,6 +4,7 @@
 import json
 import logging
 import os
+from datetime import datetime, timezone
 from os import path
 from typing import List, Optional, Iterator
 
@@ -20,6 +21,8 @@ _DEFAULT_SAVE_NAME = 'save.json'
 class GalPlayOrchestrator:
     """gal-play 编排器：加载资产包与存档 → 交互回合循环 → 命令行/脚本回放。"""
 
+    _STATE_MARKER_FILE = 'gal-state.json'
+
     def __init__(self, args):
         self.args = args
         self.agent = GalAgent(args)
@@ -35,6 +38,7 @@ class GalPlayOrchestrator:
         self.history_window: List[str] = []
         state = self._load_save()
         self.engine = GameEngine(self.assets, state)
+        self._write_state_marker('state_initialized', detail='运行时状态已初始化', turn=state.turn)
 
     # ── 资产与存档加载 ────────────────────────────────────
 
@@ -65,6 +69,27 @@ class GalPlayOrchestrator:
             return json.loads(text)
         except json.JSONDecodeError:
             return {}
+
+    # ── 相位标记（参考 comic.py _write_state_marker）──────────
+
+    def _write_state_marker(self, phase: str, detail: Optional[str] = None, turn: Optional[int] = None) -> None:
+        marker = {
+            'phase': phase,
+            'detail': detail,
+            'turn': turn,
+            'updated_at': datetime.now(timezone.utc).isoformat(),
+        }
+        write_text(path.join(self.assets_dir, self._STATE_MARKER_FILE),
+                   json.dumps(marker, ensure_ascii=False, indent=2))
+
+    def _read_state_marker(self) -> Optional[dict]:
+        text = read_text(path.join(self.assets_dir, self._STATE_MARKER_FILE))
+        if not text:
+            return None
+        try:
+            return json.loads(text)
+        except json.JSONDecodeError:
+            return None
 
     def _load_save(self) -> GameState:
         """存在存档则读档并校验 assets_hash；否则使用初始状态。"""
@@ -180,6 +205,7 @@ class GalPlayOrchestrator:
             log_fh = open(self.log_path, 'a', encoding='utf8')
 
         turn = 0
+        self._write_state_marker('running', detail='进入游戏运行时循环')
         try:
             while True:
                 if self.engine.state.game_over:
@@ -250,6 +276,7 @@ class GalPlayOrchestrator:
                 )
 
                 self._render_turn(turn_result)
+                self._write_state_marker('turn_N', detail=f'回合 {turn} 已处理', turn=turn)
 
                 if log_fh:
                     log_fh.write(
@@ -261,6 +288,7 @@ class GalPlayOrchestrator:
                     print('（故事已到达终点）')
                     break
         finally:
+            self._write_state_marker('finished', detail='运行时结束', turn=turn)
             if log_fh:
                 log_fh.close()
             self._save()

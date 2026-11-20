@@ -201,3 +201,36 @@ PMT_RUNTIME_SUMMARY = """你是故事编辑，任务是将旧滚动摘要与新�
 }
 ```
 """
+
+
+# ── 运行时：硬规则裁判（补充 Python 侧 engine.apply()）───────
+
+PMT_VALIDATE_CHANGE = """你是文字游戏规则裁判。根据世界书与当前状态，判定本回合 LLM 输出的世界变更建议是否合规。
+
+【判定规则】
+1. scene_change：目标地点 ID 必须存在于世界书地点列表，否则不合规。
+2. item_delta add：物品必须位于当前地点 items 或玩家背包中，否则不合规。
+3. item_delta remove：物品必须在玩家背包中，否则不合规。
+4. relationship_delta：char_id 必须存在于世界书角色卡，delta 裁剪到 [-1, 1]；超出应裁剪后再判定。
+5. flag_update：键值对形式，无强制限制。
+6. 任何字段若指向不存在的实体，直接判定不合规并给出失败原因与修复要点。
+
+【世界书】
+{worldbook}
+
+【当前状态】
+{state}
+
+【本回合变更建议】
+{change}
+
+【输出】
+只输出一个 JSON 对象，不要任何额外文本，格式：
+```json
+{
+  "valid": true,
+  "reason": null,
+  "fixes": []
+}
+```
+"""
